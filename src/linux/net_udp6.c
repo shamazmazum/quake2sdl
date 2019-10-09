@@ -775,7 +775,7 @@ int NET_Socket (char *net_interface, int port, netsrc_t type, int family)
         hints.ai_protocol = IPPROTO_UDP;
         hints.ai_flags = AI_PASSIVE;
 
-        if (!net_interface || !net_interface[0] || !stricmp(net_interface, "localhost"))
+        if (!net_interface || !net_interface[0] || !strcasecmp(net_interface, "localhost"))
                 Host = (family == AF_INET6) ? "::" : "0.0.0.0";
         else
                 Host = net_interface;

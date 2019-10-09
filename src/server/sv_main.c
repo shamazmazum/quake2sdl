@@ -293,8 +293,9 @@ void SVC_DirectConnect (void)
 
 	challenge = atoi(Cmd_Argv(3));
 
-	strncpy (userinfo, Cmd_Argv(4), sizeof(userinfo)-1);
-	userinfo[sizeof(userinfo) - 1] = 0;
+	// sku - reserve 32 bytes for the IP address
+	strncpy (userinfo, Cmd_Argv(4), sizeof(userinfo)-32);
+	userinfo[sizeof(userinfo) - 32] = 0;
 
 	// force the IP key/value pair so the game can filter based on ip
 	Info_SetValueForKey (userinfo, "ip", NET_AdrToString(net_from));
@@ -342,6 +343,11 @@ void SVC_DirectConnect (void)
 			&& ( cl->netchan.qport == qport 
 			|| adr.port == cl->netchan.remote_address.port ) )
 		{
+			// sku - avoid reusing slot of the client already connected
+			if( cl->state != cs_zombie ) {
+				Netchan_OutOfBandPrint( NS_SERVER, adr, "print\nConnected client from this IP is already present.\n" );
+				return;
+			}
 			if (!NET_IsLocalAddress (adr) && (svs.realtime - cl->lastconnect) < ((int)sv_reconnect_limit->value * 1000))
 			{
 				Com_DPrintf ("%s:reconnect rejected : too soon\n", NET_AdrToString (adr));

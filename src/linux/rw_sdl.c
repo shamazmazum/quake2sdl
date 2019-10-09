@@ -19,7 +19,7 @@
 #include <string.h>
 #include <sys/mman.h>
 
-#include "SDL.h"
+#include <SDL.h>
 
 #ifdef OPENGL
 #include <GL/gl.h>

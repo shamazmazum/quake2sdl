@@ -31,6 +31,10 @@ static qboolean	mouse_avail;
 static int mouse_buttonstate;
 static int mouse_oldbuttonstate;
 
+#ifdef OPENGL
+static cvar_t *use_stencil;
+#endif
+
 in_state_t *getState() {
   return in_state;
 }

@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <GL/gl.h>
 
-#ifdef __linux__
+#ifndef _WIN32
 //#include <GL/fxmesa.h>
 #include <GL/glx.h>
 #endif
@@ -428,9 +428,7 @@ extern BOOL ( WINAPI * qwglSwapIntervalEXT)( int interval );
 extern BOOL ( WINAPI * qwglGetDeviceGammaRampEXT ) ( unsigned char *pRed, unsigned char *pGreen, unsigned char *pBlue );
 extern BOOL ( WINAPI * qwglSetDeviceGammaRampEXT ) ( const unsigned char *pRed, const unsigned char *pGreen, const unsigned char *pBlue );
 
-#endif
-
-#ifdef __linux__
+#else
 
 // local function in dll
 extern void *qwglGetProcAddress(char *symbol);

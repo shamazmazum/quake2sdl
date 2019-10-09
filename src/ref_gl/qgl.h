@@ -426,9 +426,7 @@ extern BOOL ( WINAPI * qwglSwapIntervalEXT)( int interval );
 extern BOOL ( WINAPI * qwglGetDeviceGammaRampEXT ) ( unsigned char *pRed, unsigned char *pGreen, unsigned char *pBlue );
 extern BOOL ( WINAPI * qwglSetDeviceGammaRampEXT ) ( const unsigned char *pRed, const unsigned char *pGreen, const unsigned char *pBlue );
 
-#endif
-
-#ifdef __linux__
+#else
 
 // local function in dll
 extern void *qwglGetProcAddress(char *symbol);
