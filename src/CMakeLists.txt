@@ -2,17 +2,21 @@ set (quake_resource_libdir ${CMAKE_INSTALL_PREFIX}/lib/quake2lnx)
 set (quake_resource_datadir ${CMAKE_INSTALL_PREFIX}/share/quake2)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/q_resources.h.in ${CMAKE_CURRENT_BINARY_DIR}/q_resources.h)
 
-add_definitions (-DHAVE_IPV6 -DHAVE_SIN6_LEN -DQMAX -DLINUX_VERSION="1")
-include_directories (${SDL_INCLUDE_DIR} ${JPEG_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+add_definitions (-DHAVE_IPV6 -DHAVE_SIN6_LEN -DLINUX_VERSION="1")
+include_directories (${SDL_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 if (WITH_RETEX)
   add_definitions (-DRETEX)
 endif (WITH_RETEX)
 
-add_executable (quake2
+if (WITH_QMAX)
+  add_definitions (-DQMAX)
+  include_directories (${JPEG_INCLUDE_DIR})
+endif (WITH_QMAX)
+
+set (Q2_SOURCES
   client/cl_cin.c
   client/cl_ents.c
-  client/cl_fxmax.c
   client/cl_input.c
   client/cl_inv.c
   client/cl_main.c
@@ -60,6 +64,14 @@ add_executable (quake2
   linux/cd_sdl.c
   linux/snd_sdl.c
   )
+
+if (WITH_QMAX)
+  set (Q2_SOURCES ${Q2_SOURCES} client/cl_fxmax.c)
+else (WITH_QMAX)
+  set (Q2_SOURCES ${Q2_SOURCES} client/cl_fx.c)
+endif (WITH_QMAX)
+
+add_executable (quake2 ${Q2_SOURCES})
 target_link_libraries (quake2 ${SDL_LIBRARY} pthread m)
 
 add_library (ref-softsdl SHARED
@@ -89,16 +101,22 @@ add_library (ref-softsdl SHARED
 target_link_libraries (ref-softsdl ${SDL_LIBRARY} pthread)
 set_target_properties (ref-softsdl PROPERTIES OUTPUT_NAME ref_softsdl PREFIX "")
 
+if (WITH_QMAX)
+  set (GL_DIR ref_candygl)
+else (WITH_QMAX)
+  set (GL_DIR ref_gl)
+endif (WITH_QMAX)
+
 add_library (ref-sdlgl SHARED
-  ref_candygl/gl_draw.c
-  ref_candygl/gl_image.c
-  ref_candygl/gl_light.c
-  ref_candygl/gl_mesh.c
-  ref_candygl/gl_model.c
-  ref_candygl/gl_rmain.c
-  ref_candygl/gl_rmisc.c
-  ref_candygl/gl_rsurf.c
-  ref_candygl/gl_warp.c
+  ${GL_DIR}/gl_draw.c
+  ${GL_DIR}/gl_image.c
+  ${GL_DIR}/gl_light.c
+  ${GL_DIR}/gl_mesh.c
+  ${GL_DIR}/gl_model.c
+  ${GL_DIR}/gl_rmain.c
+  ${GL_DIR}/gl_rmisc.c
+  ${GL_DIR}/gl_rsurf.c
+  ${GL_DIR}/gl_warp.c
   linux/qgl_linux.c
   game/q_shared.c
   linux/q_shlinux.c
@@ -107,7 +125,10 @@ add_library (ref-sdlgl SHARED
   linux/rw_linux.c
   linux/joystick.c
 )
-target_link_libraries (ref-sdlgl ${SDL_LIBRARY} pthread ${JPEG_LIBRARY})
+target_link_libraries (ref-sdlgl ${SDL_LIBRARY} pthread)
+if (WITH_QMAX)
+  target_link_libraries (ref-sdlgl ${JPEG_LIBRARY})
+endif (WITH_QMAX)
 target_compile_definitions (ref-sdlgl PRIVATE -DOPENGL)
 set_target_properties (ref-sdlgl PROPERTIES OUTPUT_NAME ref_sdlgl PREFIX "")
 
