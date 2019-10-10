@@ -235,6 +235,7 @@ void VID_MenuInit( void )
  		"[1280 800 ]",
  		"[1680 1050]",
  		"[1920 1200]",
+        "[1920 1080]",
 		0
 	};
 	static const char *yesno_names[] =
@@ -268,7 +269,7 @@ void VID_MenuInit( void )
 			** GL ref has been found; this will change if more software
 			** modes are added to the possible_ref's array
 			*/
-			if ( i == 3 )
+			if ( i == 1 )
 				GL_REF_START = counter;
 
 			counter++;

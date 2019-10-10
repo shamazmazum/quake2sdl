@@ -71,7 +71,11 @@ It can be clipped to the top of the screen to allow the console to be
 smoothly scrolled off.
 ================
 */
+#ifdef QMAX
+void Draw_Char (int x, int y, int num, int alpha)
+#else
 void Draw_Char (int x, int y, int num)
+#endif
 {
 	byte			*dest;
 	byte			*source;
@@ -217,7 +221,11 @@ void Draw_StretchPicImplementation (int x, int y, int w, int h, image_t	*pic)
 Draw_StretchPic
 =============
 */
+#ifdef QMAX
+void Draw_StretchPic (int x, int y, int w, int h, char *name, float alpha)
+#else
 void Draw_StretchPic (int x, int y, int w, int h, char *name)
+#endif
 {
 	image_t	*pic;
 
