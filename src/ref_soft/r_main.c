@@ -1029,7 +1029,9 @@ void R_RenderFrame (refdef_t *fd)
     if (r_dspeeds->value)
         dp_time2 = Sys_Milliseconds ();
 
+#if 0 // Buggy
     R_DrawAlphaSurfaces();
+#endif
 
     R_SetLightLevel ();
 
