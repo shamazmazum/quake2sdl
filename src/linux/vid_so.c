@@ -27,6 +27,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <unistd.h>
 #include <errno.h>
 
+#include <q_resources.h>
+
 #include "../client/client.h"
 
 #include "../linux/rw_linux.h"
@@ -216,7 +218,6 @@ qboolean VID_LoadRefresh( char *name )
 	refimport_t	ri;
 	GetRefAPI_t	GetRefAPI;
 	char	fn[MAX_OSPATH];
-	char	*path;
 	struct stat st;
 	extern uid_t saved_euid;
 	
@@ -237,9 +238,7 @@ qboolean VID_LoadRefresh( char *name )
 	//regain root
 	seteuid(saved_euid);
 
-	path = Cvar_Get ("basedir", ".", CVAR_NOSET)->string;
-
-	snprintf (fn, MAX_OSPATH, "%s/%s", path, name );
+	snprintf (fn, MAX_OSPATH, "%s/%s", RESOURCE_LIBDIR, name );
 	
 	if (stat(fn, &st) == -1) {
 		Com_Printf( "LoadLibrary(\"%s\") failed: %s\n", name, strerror(errno));
@@ -247,9 +246,7 @@ qboolean VID_LoadRefresh( char *name )
 	}
 	
 	// permission checking
-	if (strstr(fn, "softx") == NULL &&
-	    strstr(fn, "glx") == NULL &&
-	    strstr(fn, "softsdl") == NULL &&
+	if (strstr(fn, "softsdl") == NULL &&
 	    strstr(fn, "sdlgl") == NULL) { // softx doesn't require root	
 #if 0
 		if (st.st_uid != 0) {
@@ -396,27 +393,9 @@ void VID_CheckChanges (void)
 		sprintf( name, "ref_%s.so", vid_ref->string );
 		if ( !VID_LoadRefresh( name ) )
 		{
-			if ( strcmp (vid_ref->string, "soft") == 0 ||
-				strcmp (vid_ref->string, "softx") == 0 ) {
-Com_Printf("Refresh failed\n");
-				sw_mode = Cvar_Get( "sw_mode", "0", 0 );
-				if (sw_mode->value != 0) {
-Com_Printf("Trying mode 0\n");
-					Cvar_SetValue("sw_mode", 0);
-					if ( !VID_LoadRefresh( name ) )
-						Com_Error (ERR_FATAL, "Couldn't fall back to software refresh!");
-				} else
-					Com_Error (ERR_FATAL, "Couldn't fall back to software refresh!");
-			}
-
-			/* prefer to fall back on X if active */
-			if (getenv("DISPLAY"))
-				Cvar_Set( "vid_ref", "softx" );
-			else
-				Cvar_Set( "vid_ref", "soft" );
-
-			/*
-			** drop the console if we fail to load a refresh
+            Cvar_Set ("vid_ref", "softsdl");
+            /*
+			* drop the console if we fail to load a refresh
 			*/
 			if ( cls.key_dest != key_console )
 			{
@@ -435,12 +414,7 @@ VID_Init
 */
 void VID_Init (void)
 {
-	/* Create the video variables so we know how to start the graphics drivers */
-	// if DISPLAY is defined, try X
-	if (getenv("DISPLAY"))
-		vid_ref = Cvar_Get ("vid_ref", "softx", CVAR_ARCHIVE);
-	else
-		vid_ref = Cvar_Get ("vid_ref", "soft", CVAR_ARCHIVE);
+    vid_ref = Cvar_Get ("vid_ref", "softsdl", CVAR_ARCHIVE);
 	vid_xpos = Cvar_Get ("vid_xpos", "3", CVAR_ARCHIVE);
 	vid_ypos = Cvar_Get ("vid_ypos", "22", CVAR_ARCHIVE);
 	vid_fullscreen = Cvar_Get ("vid_fullscreen", "0", CVAR_ARCHIVE);
@@ -449,10 +423,7 @@ void VID_Init (void)
 	/* Add some console commands that we want to handle */
 	Cmd_AddCommand ("vid_restart", VID_Restart_f);
 
-	/* Disable the 3Dfx splash screen */
-	putenv("FX_GLIDE_NO_SPLASH=0");
-		
-	/* Start the graphics mode and load refresh DLL */
+    /* Start the graphics mode and load refresh DLL */
 	VID_CheckChanges();
 }
 
@@ -490,11 +461,9 @@ ever have their names changed.
 qboolean VID_CheckRefExists (const char *ref)
 {
 	char	fn[MAX_OSPATH];
-	char	*path;
 	struct stat st;
 
-	path = Cvar_Get ("basedir", ".", CVAR_NOSET)->string;
-	snprintf (fn, MAX_OSPATH, "%s/ref_%s.so", path, ref );
+	snprintf (fn, MAX_OSPATH, "%s/ref_%s.so", RESOURCE_LIBDIR, ref );
 	
 	if (stat(fn, &st) == 0)
 		return true;

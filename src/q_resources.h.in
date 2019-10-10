@@ -1,0 +1,7 @@
+#ifndef _Q_RESOURCES_H_
+#define _Q_RESOURCES_H_
+
+#define RESOURCE_LIBDIR "@quake_resource_libdir@"
+#define RESOURCE_DATADIR "@quake_resource_datadir@"
+
+#endif

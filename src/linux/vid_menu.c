@@ -12,16 +12,13 @@ are present on this system
 */
 
 /* this will have to be updated if ref's are added/removed from ref_t */
-#define NUMBER_OF_REFS 5
+#define NUMBER_OF_REFS 2
 
 /* all the refs should be initially set to 0 */
 static char *refs[NUMBER_OF_REFS+1] = { 0 };
 
 /* make all these have illegal values, as they will be redefined */
-static int REF_SOFT    = NUMBER_OF_REFS;
-static int REF_SOFTX11 = NUMBER_OF_REFS;
 static int REF_SOFTSDL = NUMBER_OF_REFS;
-static int REF_GLX     = NUMBER_OF_REFS;
 static int REF_SDLGL   = NUMBER_OF_REFS;
 //static int REF_FXGL    = NUMBER_OF_REFS;
 
@@ -36,10 +33,7 @@ typedef struct
 
 static const ref_t possible_refs[NUMBER_OF_REFS] =
 {
-	{ "[software      ]", "soft",    &REF_SOFT    },
-	{ "[software X11  ]", "softx",   &REF_SOFTX11 },
 	{ "[software SDL  ]", "softsdl", &REF_SOFTSDL },
-	{ "[OpenGL GLX    ]", "glx",     &REF_GLX     },
 	{ "[SDL OpenGL    ]", "sdlgl",   &REF_SDLGL   }
 };
 
@@ -125,10 +119,7 @@ static void BrightnessCallback( void *s )
 	else
 		s_brightness_slider[0].curvalue = s_brightness_slider[1].curvalue;
 
-	if ( strcasecmp( vid_ref->string, "soft" ) == 0 ||
-		 strcasecmp( vid_ref->string, "softx" ) == 0 ||
-		 strcasecmp( vid_ref->string, "softsdl" ) == 0 ||
-		 strcasecmp( vid_ref->string, "glx" ) == 0 )
+	if ( strcasecmp( vid_ref->string, "softsdl" ) == 0 )
 	{
 		float gamma = ( 0.8 - ( slider->curvalue/10.0 - 0.5 ) ) + 0.5;
 
@@ -172,25 +163,9 @@ static void ApplyChanges( void *unused )
 	** and not #DEFINE's (constants)
 	*/
 	ref = s_ref_list[s_current_menu_index].curvalue;
-	if ( ref == REF_SOFT )
-	{
-		Cvar_Set( "vid_ref", "soft" );
-	}
-	else if ( ref == REF_SOFTX11 )
-	{
-		Cvar_Set( "vid_ref", "softx" );
-	}
-	else if ( ref == REF_SOFTSDL )
+	if ( ref == REF_SOFTSDL )
 	{
 		Cvar_Set( "vid_ref", "softsdl" );
-	}
-	else if ( ref == REF_GLX )
-	{
-		Cvar_Set( "vid_ref", "glx" );
-		// below is wrong if we use different libs for different GL reflibs
-		Cvar_Get( "gl_driver", "libGL.so.1", CVAR_ARCHIVE ); // ??? create if it doesn't exit
-		if (gl_driver->modified)
-			vid_ref->modified = true;
 	}
 	else if ( ref == REF_SDLGL )
 	{
@@ -270,12 +245,8 @@ void VID_MenuInit( void )
 	};
 
 	/* make sure these are invalided before showing the menu again */
-	REF_SOFT    = NUMBER_OF_REFS;
-	REF_SOFTX11 = NUMBER_OF_REFS;
 	REF_SOFTSDL = NUMBER_OF_REFS;
-	REF_GLX     = NUMBER_OF_REFS;
 	REF_SDLGL   = NUMBER_OF_REFS;
-	//REF_FXGL    = NUMBER_OF_REFS;
 
 	GL_REF_START = NUMBER_OF_REFS;
 
@@ -332,50 +303,15 @@ void VID_MenuInit( void )
 	s_screensize_slider[SOFTWARE_MENU].curvalue = scr_viewsize->value/10;
 	s_screensize_slider[OPENGL_MENU].curvalue = scr_viewsize->value/10;
 
-	if ( strcmp( vid_ref->string, "soft" ) == 0)
-	{
-		s_current_menu_index = SOFTWARE_MENU;
-		s_ref_list[0].curvalue = s_ref_list[1].curvalue = REF_SOFT;
-	}
-	else if (strcmp( vid_ref->string, "softx" ) == 0 ) 
-	{
-		s_current_menu_index = SOFTWARE_MENU;
-		s_ref_list[0].curvalue = s_ref_list[1].curvalue = REF_SOFTX11;
-	}
-	else if (strcmp( vid_ref->string, "softsdl" ) == 0 )
+    if (strcmp( vid_ref->string, "softsdl" ) == 0 )
 	{
 		s_current_menu_index = SOFTWARE_MENU;
 		s_ref_list[0].curvalue = s_ref_list[1].curvalue = REF_SOFTSDL;
-	}
-	else if ( strcmp( vid_ref->string, "glx" ) == 0 )
-	{
-		s_current_menu_index = OPENGL_MENU;
-		s_ref_list[s_current_menu_index].curvalue = REF_GLX;
-#if 0
-		if ( strcmp( gl_driver->string, "3dfxgl" ) == 0 )
-			s_ref_list[s_current_menu_index].curvalue = REF_3DFX;
-		else if ( strcmp( gl_driver->string, "pvrgl" ) == 0 )
-			s_ref_list[s_current_menu_index].curvalue = REF_POWERVR;
-		else if ( strcmp( gl_driver->string, "opengl32" ) == 0 )
-			s_ref_list[s_current_menu_index].curvalue = REF_OPENGL;
-		else
-			s_ref_list[s_current_menu_index].curvalue = REF_VERITE;
-#endif
 	}
 	else if ( strcmp( vid_ref->string, "sdlgl" ) == 0 )
 	{
 		s_current_menu_index = OPENGL_MENU;
 		s_ref_list[s_current_menu_index].curvalue = REF_SDLGL;
-#if 0
-		if ( strcmp( gl_driver->string, "3dfxgl" ) == 0 )
-			s_ref_list[s_current_menu_index].curvalue = REF_3DFX;
-		else if ( strcmp( gl_driver->string, "pvrgl" ) == 0 )
-			s_ref_list[s_current_menu_index].curvalue = REF_POWERVR;
-		else if ( strcmp( gl_driver->string, "opengl32" ) == 0 )
-			s_ref_list[s_current_menu_index].curvalue = REF_OPENGL;
-		else
-			s_ref_list[s_current_menu_index].curvalue = REF_VERITE;
-#endif
 	}
 
 	s_software_menu.x = viddef.width * 0.50;

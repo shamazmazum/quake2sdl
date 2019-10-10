@@ -18,6 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
+#include <q_resources.h>
 #include "qcommon.h"
 
 // define this to dissalow any data but the demo pak file
@@ -680,6 +681,8 @@ void FS_SetGamedir (char *dir)
 		Cvar_FullSet ("gamedir", dir, CVAR_SERVERINFO|CVAR_NOSET);
 		if (fs_cddir->string[0])
 			FS_AddGameDirectory (va("%s/%s", fs_cddir->string, dir) );
+        FS_AddGameDirectory (va("%s/%s", RESOURCE_LIBDIR, dir));
+        FS_AddGameDirectory (va("%s/%s", RESOURCE_DATADIR, dir));
 		FS_AddGameDirectory (va("%s/%s", fs_basedir->string, dir) );
 		FS_AddHomeAsGameDirectory(dir);
 	}
@@ -912,6 +915,8 @@ void FS_InitFilesystem (void)
 	//
 	// add baseq2 to search path
 	//
+    FS_AddGameDirectory (va("%s/%s", RESOURCE_LIBDIR, BASEDIRNAME));
+    FS_AddGameDirectory (va("%s/%s", RESOURCE_DATADIR, BASEDIRNAME));
 	FS_AddGameDirectory (va("%s/"BASEDIRNAME, fs_basedir->string) );
 
 	//

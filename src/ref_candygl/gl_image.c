@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "gl_local.h"
-#include "jpeglib.h"
+#include <jpeglib.h>
 
 image_t		gltextures[MAX_GLTEXTURES];
 int			numgltextures;
@@ -776,6 +776,7 @@ void jpg_skip_input_data(j_decompress_ptr cinfo, long num_bytes)
 		ri.Con_Printf(PRINT_ALL, "Premature end of JPEG data\n");
 }
 
+#if 0
 void jpeg_mem_src(j_decompress_ptr cinfo, byte *mem, int len)
 {
     cinfo->src = (struct jpeg_source_mgr *)(*cinfo->mem->alloc_small)((j_common_ptr) cinfo, JPOOL_PERMANENT, sizeof(struct jpeg_source_mgr));
@@ -787,6 +788,7 @@ void jpeg_mem_src(j_decompress_ptr cinfo, byte *mem, int len)
     cinfo->src->bytes_in_buffer = len;
     cinfo->src->next_input_byte = mem;
 }
+#endif
 
 /*
 ==============
