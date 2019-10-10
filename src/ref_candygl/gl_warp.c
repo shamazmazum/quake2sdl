@@ -192,13 +192,6 @@ void GL_SubdivideSurface (msurface_t *fa)
 
 //=========================================================
 
-
-
-// speed up sin calculations - Ed
-float    r_turbsin[] =
-{
-    #include "warpsin.h"
-};
 #define TURBSCALE (256.0 / (2 * M_PI))
 
 /*
