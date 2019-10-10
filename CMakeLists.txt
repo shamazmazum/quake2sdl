@@ -6,4 +6,6 @@ set (CMAKE_C_FLAGS_RELEASE "-O3")
 find_package (SDL REQUIRED)
 find_package (JPEG REQUIRED)
 
+option (WITH_RETEX "Support for retexture" OFF)
+
 add_subdirectory (src)

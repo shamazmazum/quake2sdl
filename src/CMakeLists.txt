@@ -2,8 +2,12 @@ set (quake_resource_libdir ${CMAKE_INSTALL_PREFIX}/lib/quake2lnx)
 set (quake_resource_datadir ${CMAKE_INSTALL_PREFIX}/share/quake2)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/q_resources.h.in ${CMAKE_CURRENT_BINARY_DIR}/q_resources.h)
 
-add_definitions (-DHAVE_IPV6 -DHAVE_SIN6_LEN -DQMAX -DRETEX -DC_ONLY -DLINUX_VERSION="1")
+add_definitions (-DHAVE_IPV6 -DHAVE_SIN6_LEN -DQMAX -DLINUX_VERSION="1")
 include_directories (${SDL_INCLUDE_DIR} ${JPEG_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+
+if (WITH_RETEX)
+  add_definitions (-DRETEX)
+endif (WITH_RETEX)
 
 add_executable (quake2
   client/cl_cin.c
