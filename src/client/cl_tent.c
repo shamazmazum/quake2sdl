@@ -1185,9 +1185,11 @@ void CL_ParseTEnt (void)
 
     case TE_LIGHTNING:
 #ifdef QMAX
-      ent = CL_ParseLightning (10);
+        // WTF is 10?
+        //ent = CL_ParseLightning (10);
+        ent = CL_ParseLightning (cl_mod_lightning);
 #else
-      ent = CL_ParseLightning (cl_mod_lightning);
+        ent = CL_ParseLightning (cl_mod_lightning);
 #endif
         S_StartSound (NULL, ent, CHAN_WEAPON, cl_sfx_lightning, 1, ATTN_NORM, 0);
         break;
