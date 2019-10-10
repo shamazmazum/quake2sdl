@@ -19,31 +19,31 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 #include "../ref_soft/r_local.h"
 
-void		SWimp_BeginFrame( float camera_separation )
+void        SWimp_BeginFrame( float camera_separation )
 {
 }
 
-void		SWimp_EndFrame (void)
+void        SWimp_EndFrame (void)
 {
 }
 
-int			SWimp_Init( void *hInstance, void *wndProc )
+int            SWimp_Init( void *hInstance, void *wndProc )
 {
 }
 
-void		SWimp_SetPalette( const unsigned char *palette)
+void        SWimp_SetPalette( const unsigned char *palette)
 {
 }
 
-void		SWimp_Shutdown( void )
+void        SWimp_Shutdown( void )
 {
 }
 
-rserr_t		SWimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen )
+rserr_t        SWimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen )
 {
 }
 
-void		SWimp_AppActivate( qboolean active )
+void        SWimp_AppActivate( qboolean active )
 {
 }
 

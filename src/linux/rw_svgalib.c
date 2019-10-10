@@ -54,9 +54,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*****************************************************************************/
 
-int		VGA_width, VGA_height, VGA_rowbytes, VGA_bufferrowbytes, VGA_planar;
-byte	*VGA_pagebase;
-byte	*framebuffer_ptr;
+int        VGA_width, VGA_height, VGA_rowbytes, VGA_bufferrowbytes, VGA_planar;
+byte    *VGA_pagebase;
+byte    *framebuffer_ptr;
 
 void VGA_UpdatePlanarScreen (void *srcbuffer);
 
@@ -73,29 +73,29 @@ void VID_InitModes(void)
 
 int i;
 
-	// get complete information on all modes
+    // get complete information on all modes
 
-	num_modes = vga_lastmodenumber()+1;
-	modes = malloc(num_modes * sizeof(vga_modeinfo));
-	for (i=0 ; i<num_modes ; i++)
-	{
-		if (vga_hasmode(i))
-			memcpy(&modes[i], vga_getmodeinfo(i), sizeof (vga_modeinfo));
-		else
-			modes[i].width = 0; // means not available
-	}
+    num_modes = vga_lastmodenumber()+1;
+    modes = malloc(num_modes * sizeof(vga_modeinfo));
+    for (i=0 ; i<num_modes ; i++)
+    {
+        if (vga_hasmode(i))
+            memcpy(&modes[i], vga_getmodeinfo(i), sizeof (vga_modeinfo));
+        else
+            modes[i].width = 0; // means not available
+    }
 
-	// filter for modes i don't support
+    // filter for modes i don't support
 
-	for (i=0 ; i<num_modes ; i++)
-	{
-		if (modes[i].bytesperpixel != 1 && modes[i].colors != 256) 
-			modes[i].width = 0;
-	}
+    for (i=0 ; i<num_modes ; i++)
+    {
+        if (modes[i].bytesperpixel != 1 && modes[i].colors != 256) 
+            modes[i].width = 0;
+    }
 
-	for (i = 0; i < num_modes; i++)
-		if (modes[i].width)
-			ri.Con_Printf(PRINT_ALL, "mode %d: %d %d\n", i, modes[i].width, modes[i].height);
+    for (i = 0; i < num_modes; i++)
+        if (modes[i].width)
+            ri.Con_Printf(PRINT_ALL, "mode %d: %d %d\n", i, modes[i].width, modes[i].height);
 
 }
 
@@ -107,26 +107,26 @@ int i;
 */
 int SWimp_Init( void *hInstance, void *wndProc )
 {
-	vga_init();
+    vga_init();
 
-	VID_InitModes();
+    VID_InitModes();
 
-	return true;
+    return true;
 }
 
 int get_mode(int width, int height)
 {
 
-	int i;
+    int i;
 
-	for (i=0 ; i<num_modes ; i++)
-		if (modes[i].width &&
-			modes[i].width == width && modes[i].height == height)
-				break;
-	if (i==num_modes)
-		return -1; // not found
+    for (i=0 ; i<num_modes ; i++)
+        if (modes[i].width &&
+            modes[i].width == width && modes[i].height == height)
+                break;
+    if (i==num_modes)
+        return -1; // not found
 
-	return i;
+    return i;
 }
 
 /*
@@ -141,51 +141,51 @@ int get_mode(int width, int height)
 */
 static qboolean SWimp_InitGraphics( qboolean fullscreen )
 {
-	SWimp_Shutdown();
+    SWimp_Shutdown();
 
-	current_mode = get_mode(vid.width, vid.height);
+    current_mode = get_mode(vid.width, vid.height);
 
-	if (current_mode < 0) {
-		ri.Con_Printf (PRINT_ALL, "Mode %d %d not found\n", vid.width, vid.height);
-		return false; // mode not found
-	}
+    if (current_mode < 0) {
+        ri.Con_Printf (PRINT_ALL, "Mode %d %d not found\n", vid.width, vid.height);
+        return false; // mode not found
+    }
 
-	// let the sound and input subsystems know about the new window
-	ri.Vid_NewWindow (vid.width, vid.height);
+    // let the sound and input subsystems know about the new window
+    ri.Vid_NewWindow (vid.width, vid.height);
 
-	ri.Con_Printf (PRINT_ALL, "Setting VGAMode: %d\n", current_mode );
+    ri.Con_Printf (PRINT_ALL, "Setting VGAMode: %d\n", current_mode );
 
-//	Cvar_SetValue ("vid_mode", (float)modenum);
-	
-	VGA_width = modes[current_mode].width;
-	VGA_height = modes[current_mode].height;
-	VGA_planar = modes[current_mode].bytesperpixel == 0;
-	VGA_rowbytes = modes[current_mode].linewidth;
+//    Cvar_SetValue ("vid_mode", (float)modenum);
+    
+    VGA_width = modes[current_mode].width;
+    VGA_height = modes[current_mode].height;
+    VGA_planar = modes[current_mode].bytesperpixel == 0;
+    VGA_rowbytes = modes[current_mode].linewidth;
 
-	vid.rowbytes = modes[current_mode].linewidth;
+    vid.rowbytes = modes[current_mode].linewidth;
 
-	if (VGA_planar) {
-		VGA_bufferrowbytes = modes[current_mode].linewidth * 4;
-		vid.rowbytes = modes[current_mode].linewidth*4;
-	}
+    if (VGA_planar) {
+        VGA_bufferrowbytes = modes[current_mode].linewidth * 4;
+        vid.rowbytes = modes[current_mode].linewidth*4;
+    }
 
 // get goin'
 
-	vga_setmode(current_mode);
+    vga_setmode(current_mode);
 
-	VGA_pagebase = framebuffer_ptr = vga_getgraphmem();
-//		if (vga_setlinearaddressing()>0)
-//			framebuffer_ptr = (char *) vga_getgraphmem();
-	if (!framebuffer_ptr)
-		Sys_Error("This mode isn't hapnin'\n");
+    VGA_pagebase = framebuffer_ptr = vga_getgraphmem();
+//        if (vga_setlinearaddressing()>0)
+//            framebuffer_ptr = (char *) vga_getgraphmem();
+    if (!framebuffer_ptr)
+        Sys_Error("This mode isn't hapnin'\n");
 
-	vga_setpage(0);
+    vga_setpage(0);
 
-	vid.buffer = malloc(vid.rowbytes * vid.height);
-	if (!vid.buffer)
-		Sys_Error("Unabled to alloc vid.buffer!\n");
+    vid.buffer = malloc(vid.rowbytes * vid.height);
+    if (!vid.buffer)
+        Sys_Error("Unabled to alloc vid.buffer!\n");
 
-	return true;
+    return true;
 }
 
 /*
@@ -197,26 +197,26 @@ static qboolean SWimp_InitGraphics( qboolean fullscreen )
 */
 void SWimp_EndFrame (void)
 {
-	if (!vga_oktowrite())
-		return; // can't update screen if it's not active
+    if (!vga_oktowrite())
+        return; // can't update screen if it's not active
 
-//	if (vid_waitforrefresh.value)
-//		vga_waitretrace();
+//    if (vid_waitforrefresh.value)
+//        vga_waitretrace();
 
-	if (VGA_planar)
-		VGA_UpdatePlanarScreen (vid.buffer);
+    if (VGA_planar)
+        VGA_UpdatePlanarScreen (vid.buffer);
 
-	else {
-		int total = vid.rowbytes * vid.height;
-		int offset;
+    else {
+        int total = vid.rowbytes * vid.height;
+        int offset;
 
-		for (offset=0;offset<total;offset+=0x10000) {
-			vga_setpage(offset/0x10000);
-			memcpy(framebuffer_ptr,
-					vid.buffer + offset,
-					((total-offset>0x10000)?0x10000:(total-offset)));
-		}
-	} 
+        for (offset=0;offset<total;offset+=0x10000) {
+            vga_setpage(offset/0x10000);
+            memcpy(framebuffer_ptr,
+                    vid.buffer + offset,
+                    ((total-offset>0x10000)?0x10000:(total-offset)));
+        }
+    } 
 }
 
 /*
@@ -224,26 +224,26 @@ void SWimp_EndFrame (void)
 */
 rserr_t SWimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen )
 {
-	rserr_t retval = rserr_ok;
+    rserr_t retval = rserr_ok;
 
-	ri.Con_Printf (PRINT_ALL, "setting mode %d:", mode );
+    ri.Con_Printf (PRINT_ALL, "setting mode %d:", mode );
 
-	if ( !ri.Vid_GetModeInfo( pwidth, pheight, mode ) )
-	{
-		ri.Con_Printf( PRINT_ALL, " invalid mode\n" );
-		return rserr_invalid_mode;
-	}
+    if ( !ri.Vid_GetModeInfo( pwidth, pheight, mode ) )
+    {
+        ri.Con_Printf( PRINT_ALL, " invalid mode\n" );
+        return rserr_invalid_mode;
+    }
 
-	ri.Con_Printf( PRINT_ALL, " %d %d\n", *pwidth, *pheight);
+    ri.Con_Printf( PRINT_ALL, " %d %d\n", *pwidth, *pheight);
 
-	if ( !SWimp_InitGraphics( false ) ) {
-		// failed to set a valid mode in windowed mode
-		return rserr_invalid_mode;
-	}
+    if ( !SWimp_InitGraphics( false ) ) {
+        // failed to set a valid mode in windowed mode
+        return rserr_invalid_mode;
+    }
 
-	R_GammaCorrectAndSetPalette( ( const unsigned char * ) d_8to24table );
+    R_GammaCorrectAndSetPalette( ( const unsigned char * ) d_8to24table );
 
-	return retval;
+    return retval;
 }
 
 /*
@@ -255,28 +255,28 @@ rserr_t SWimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen 
 */
 void SWimp_SetPalette( const unsigned char *palette )
 {
-	static int tmppal[256*3];
-	const unsigned char *pal;
-	int *tp;
-	int i;
+    static int tmppal[256*3];
+    const unsigned char *pal;
+    int *tp;
+    int i;
 
     if ( !palette )
         palette = ( const unsigned char * ) sw_state.currentpalette;
  
-	if (vga_getcolors() == 256)
-	{
-		tp = tmppal;
-		pal = palette;
+    if (vga_getcolors() == 256)
+    {
+        tp = tmppal;
+        pal = palette;
 
-		for (i=0 ; i < 256 ; i++, pal += 4, tp += 3) {
-			tp[0] = pal[0] >> 2;
-			tp[1] = pal[1] >> 2;
-			tp[2] = pal[2] >> 2;
-		}
+        for (i=0 ; i < 256 ; i++, pal += 4, tp += 3) {
+            tp[0] = pal[0] >> 2;
+            tp[1] = pal[1] >> 2;
+            tp[2] = pal[2] >> 2;
+        }
 
-		if (vga_oktowrite())
-			vga_setpalvec(0, 256, tmppal);
-	}
+        if (vga_oktowrite())
+            vga_setpalvec(0, 256, tmppal);
+    }
 }
 
 /*
@@ -287,11 +287,11 @@ void SWimp_SetPalette( const unsigned char *palette )
 */
 void SWimp_Shutdown( void )
 {
-	if (vid.buffer) {
-		free(vid.buffer);
-		vid.buffer = NULL;
-	}
-	vga_setmode(TEXT);
+    if (vid.buffer) {
+        free(vid.buffer);
+        vid.buffer = NULL;
+    }
+    vga_setmode(TEXT);
 }
 
 /*
@@ -311,18 +311,18 @@ Sys_MakeCodeWriteable
 void Sys_MakeCodeWriteable (unsigned long startaddr, unsigned long length)
 {
 
-	int r;
-	unsigned long addr;
-	int psize = getpagesize();
+    int r;
+    unsigned long addr;
+    int psize = getpagesize();
 
-	addr = (startaddr & ~(psize-1)) - psize;
+    addr = (startaddr & ~(psize-1)) - psize;
 
-//	fprintf(stderr, "writable code %lx(%lx)-%lx, length=%lx\n", startaddr,
-//			addr, startaddr+length, length);
+//    fprintf(stderr, "writable code %lx(%lx)-%lx, length=%lx\n", startaddr,
+//            addr, startaddr+length, length);
 
-	r = mprotect((char*)addr, length + startaddr - addr + psize, 7);
+    r = mprotect((char*)addr, length + startaddr - addr + psize, 7);
 
-	if (r < 0)
-    		Sys_Error("Protection change failed\n");
+    if (r < 0)
+            Sys_Error("Protection change failed\n");
 }
 

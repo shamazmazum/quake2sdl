@@ -10,25 +10,25 @@
 
 /*
 extern cvar_t   *in_joystick;
-extern cvar_t	*joy_name;
+extern cvar_t    *joy_name;
 extern cvar_t   *joy_dev;
 extern cvar_t   *joy_advanced;
-extern cvar_t	*joy_advaxisx;
-extern cvar_t	*joy_advaxisy;
-extern cvar_t	*joy_advaxisz;
-extern cvar_t	*joy_advaxisr;
-extern cvar_t	*joy_advaxisu;
-extern cvar_t	*joy_advaxisv;
-extern cvar_t	*joy_forwardthreshold;
-extern cvar_t	*joy_sidethreshold;
-extern cvar_t	*joy_pitchthreshold;
-extern cvar_t	*joy_yawthreshold;
-extern cvar_t	*joy_forwardsensitivity;
-extern cvar_t	*joy_sidesensitivity;
-extern cvar_t	*joy_pitchsensitivity;
-extern cvar_t	*joy_yawsensitivity;
-extern cvar_t	*joy_upthreshold;
-extern cvar_t	*joy_upsensitivity;
+extern cvar_t    *joy_advaxisx;
+extern cvar_t    *joy_advaxisy;
+extern cvar_t    *joy_advaxisz;
+extern cvar_t    *joy_advaxisr;
+extern cvar_t    *joy_advaxisu;
+extern cvar_t    *joy_advaxisv;
+extern cvar_t    *joy_forwardthreshold;
+extern cvar_t    *joy_sidethreshold;
+extern cvar_t    *joy_pitchthreshold;
+extern cvar_t    *joy_yawthreshold;
+extern cvar_t    *joy_forwardsensitivity;
+extern cvar_t    *joy_sidesensitivity;
+extern cvar_t    *joy_pitchsensitivity;
+extern cvar_t    *joy_yawsensitivity;
+extern cvar_t    *joy_upthreshold;
+extern cvar_t    *joy_upsensitivity;
 
 extern cvar_t  *cl_upspeed;
 extern cvar_t  *cl_forwardspeed;

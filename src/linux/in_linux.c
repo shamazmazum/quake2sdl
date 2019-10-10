@@ -21,8 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../client/client.h"
 
-cvar_t	*in_mouse;
-cvar_t	*in_joystick;
+cvar_t    *in_mouse;
+cvar_t    *in_joystick;
 
 void IN_Init (void)
 {

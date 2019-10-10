@@ -1,25 +1,25 @@
 /*
-	snd_alsa.c
+    snd_alsa.c
 
-	This program is free software; you can redistribute it and/or
-	modify it under the terms of the GNU General Public License
-	as published by the Free Software Foundation; either version 2
-	of the License, or (at your option) any later version.
+    This program is free software; you can redistribute it and/or
+    modify it under the terms of the GNU General Public License
+    as published by the Free Software Foundation; either version 2
+    of the License, or (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-	See the GNU General Public License for more details.
+    See the GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to:
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to:
 
-		Free Software Foundation, Inc.
-		59 Temple Place - Suite 330
-		Boston, MA  02111-1307, USA
+        Free Software Foundation, Inc.
+        59 Temple Place - Suite 330
+        Boston, MA  02111-1307, USA
 
-	$Id: snd_alsa.c,v 1.5 2005/01/02 03:29:11 bburns Exp $
+    $Id: snd_alsa.c,v 1.5 2005/01/02 03:29:11 bburns Exp $
 */
 
 #define BUFFER_SIZE 4096
@@ -60,11 +60,11 @@ qboolean SNDDMA_Init (void)
   snddevice = Cvar_Get("snddevice", "default", CVAR_ARCHIVE);
   
   err = snd_pcm_open(&playback_handle, snddevice->string, 
-		     SND_PCM_STREAM_PLAYBACK, 0);
+             SND_PCM_STREAM_PLAYBACK, 0);
   if (err < 0) {
     Com_Printf("ALSA snd error, cannot open device %s (%s)\n", 
-	       snddevice->string,
-	       snd_strerror(err));
+           snddevice->string,
+           snd_strerror(err));
     return 0;
   }
   
@@ -72,23 +72,23 @@ qboolean SNDDMA_Init (void)
 
   if (err < 0) {
     Com_Printf("ALSA snd error, cannot allocate hw params (%s)\n",
-	       snd_strerror(err));
+           snd_strerror(err));
     return 0;
   }
   
   err = snd_pcm_hw_params_any (playback_handle, hw_params);
   if (err < 0) {
     Com_Printf("ALSA snd error, cannot init hw params (%s)\n",
-	       snd_strerror(err));
+           snd_strerror(err));
     snd_pcm_hw_params_free(hw_params);
     return 0;
   }
   
   err = snd_pcm_hw_params_set_access(playback_handle, hw_params, 
-				     SND_PCM_ACCESS_RW_INTERLEAVED);
+                     SND_PCM_ACCESS_RW_INTERLEAVED);
   if (err < 0) {
     Com_Printf("ALSA snd error, cannot set access (%s)\n",
-	       snd_strerror(err));
+           snd_strerror(err));
     snd_pcm_hw_params_free(hw_params);
     return 0;
   }
@@ -96,7 +96,7 @@ qboolean SNDDMA_Init (void)
   dma.samplebits = sndbits->value;
   if (dma.samplebits == 16 || dma.samplebits != 8) {
     err = snd_pcm_hw_params_set_format(playback_handle, hw_params,
-				       SND_PCM_FORMAT_S16_LE);
+                       SND_PCM_FORMAT_S16_LE);
     if (err < 0) {
       Com_Printf("ALSA snd error, 16 bit sound not supported, trying 8\n");
       dma.samplebits = 8;
@@ -107,11 +107,11 @@ qboolean SNDDMA_Init (void)
   }
   if (dma.samplebits == 8) {
     err = snd_pcm_hw_params_set_format(playback_handle, hw_params,
-				       SND_PCM_FORMAT_U8);
+                       SND_PCM_FORMAT_U8);
   }
   if (err < 0) {
     Com_Printf("ALSA snd error, cannot set sample format (%s)\n",
-	       snd_strerror(err));
+           snd_strerror(err));
     snd_pcm_hw_params_free(hw_params);
     return 0;
   }
@@ -124,14 +124,14 @@ qboolean SNDDMA_Init (void)
     for (i=0 ; i<sizeof(tryrates); i++) {
       int test = tryrates[i];
       err = snd_pcm_hw_params_set_rate_near(playback_handle, hw_params,
-					    &test, 0);
+                        &test, 0);
       if (err < 0) {
-	Com_Printf("ALSA snd error, cannot set sample rate %d (%s)\n",
-		   tryrates[i], snd_strerror(err));
+    Com_Printf("ALSA snd error, cannot set sample rate %d (%s)\n",
+           tryrates[i], snd_strerror(err));
       }
       else {
-	dma.speed = test;
-	break;
+    dma.speed = test;
+    break;
       }
     }
   }
@@ -147,7 +147,7 @@ qboolean SNDDMA_Init (void)
   err = snd_pcm_hw_params_set_channels(playback_handle,hw_params,dma.channels);
   if (err < 0) {
     Com_Printf("ALSA snd error couldn't set channels %d (%s).\n",
-	       dma.channels, snd_strerror(err));
+           dma.channels, snd_strerror(err));
     snd_pcm_hw_params_free(hw_params);
     return 0;
   }

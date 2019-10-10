@@ -22,9 +22,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../client/client.h"
 
-viddef_t	viddef;				// global video state
+viddef_t    viddef;                // global video state
 
-refexport_t	re;
+refexport_t    re;
 
 refexport_t GetRefAPI (refimport_t rimp);
 
@@ -36,11 +36,11 @@ DIRECT LINK GLUE
 ==========================================================================
 */
 
-#define	MAXPRINTMSG	4096
+#define    MAXPRINTMSG    4096
 void VID_Printf (int print_level, char *fmt, ...)
 {
-        va_list		argptr;
-        char		msg[MAXPRINTMSG];
+        va_list        argptr;
+        char        msg[MAXPRINTMSG];
 
         va_start (argptr,fmt);
         vsprintf (msg,fmt,argptr);
@@ -54,14 +54,14 @@ void VID_Printf (int print_level, char *fmt, ...)
 
 void VID_Error (int err_level, char *fmt, ...)
 {
-        va_list		argptr;
-        char		msg[MAXPRINTMSG];
+        va_list        argptr;
+        char        msg[MAXPRINTMSG];
 
         va_start (argptr,fmt);
         vsprintf (msg,fmt,argptr);
         va_end (argptr);
 
-		Com_Error (err_level, "%s", msg);
+        Com_Error (err_level, "%s", msg);
 }
 
 void VID_NewWindow (int width, int height)
@@ -92,7 +92,7 @@ vidmode_t vid_modes[] =
     { "Mode 7: 1152x864",  1152, 864,  7 },
     { "Mode 8: 1280x960",  1280, 960, 8 },
     { "Mode 9: 1600x1200", 1600, 1200, 9 },
-	{ "Mode 10: 2048x1536", 2048, 1536, 10 }
+    { "Mode 10: 2048x1536", 2048, 1536, 10 }
 };
 #define VID_NUM_MODES ( sizeof( vid_modes ) / sizeof( vid_modes[0] ) )
 
@@ -108,9 +108,9 @@ qboolean VID_GetModeInfo( int *width, int *height, int mode )
 }
 
 
-void	VID_Init (void)
+void    VID_Init (void)
 {
-    refimport_t	ri;
+    refimport_t    ri;
 
     viddef.width = 320;
     viddef.height = 240;
@@ -125,7 +125,7 @@ void	VID_Init (void)
     ri.FS_LoadFile = FS_LoadFile;
     ri.FS_FreeFile = FS_FreeFile;
     ri.FS_Gamedir = FS_Gamedir;
-	ri.Vid_NewWindow = VID_NewWindow;
+    ri.Vid_NewWindow = VID_NewWindow;
     ri.Cvar_Get = Cvar_Get;
     ri.Cvar_Set = Cvar_Set;
     ri.Cvar_SetValue = Cvar_SetValue;
@@ -138,28 +138,28 @@ void	VID_Init (void)
     
         // call the init function
     if (re.Init (NULL, NULL) == -1)
-		Com_Error (ERR_FATAL, "Couldn't start refresh");
+        Com_Error (ERR_FATAL, "Couldn't start refresh");
 }
 
-void	VID_Shutdown (void)
+void    VID_Shutdown (void)
 {
     if (re.Shutdown)
-	    re.Shutdown ();
+        re.Shutdown ();
 }
 
-void	VID_CheckChanges (void)
+void    VID_CheckChanges (void)
 {
 }
 
-void	VID_MenuInit (void)
+void    VID_MenuInit (void)
 {
 }
 
-void	VID_MenuDraw (void)
+void    VID_MenuDraw (void)
 {
 }
 
 const char *VID_MenuKey( int k)
 {
-	return NULL;
+    return NULL;
 }

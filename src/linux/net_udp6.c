@@ -36,31 +36,31 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <libc.h>
 #endif
 
-netadr_t	net_local_adr;
+netadr_t    net_local_adr;
 
-#define	LOOPBACK	0x7f000001
+#define    LOOPBACK    0x7f000001
 
-#define	MAX_LOOPBACK	4
+#define    MAX_LOOPBACK    4
 
 #define QUAKE2MCAST "ff12::666"
 #include <net/if.h>
 
 typedef struct
 {
-	byte	data[MAX_MSGLEN];
-	int		datalen;
+    byte    data[MAX_MSGLEN];
+    int        datalen;
 } loopmsg_t;
 
 typedef struct
 {
-	loopmsg_t	msgs[MAX_LOOPBACK];
-	int			get, send;
+    loopmsg_t    msgs[MAX_LOOPBACK];
+    int            get, send;
 } loopback_t;
 
-loopback_t	loopbacks[2];
-int			ip_sockets[2];
+loopback_t    loopbacks[2];
+int            ip_sockets[2];
 int                     ip6_sockets[2];
-int			ipx_sockets[2];
+int            ipx_sockets[2];
 
 char *multicast_interface = NULL;
 
@@ -73,7 +73,7 @@ void NetadrToSockadr (netadr_t *a, struct sockaddr_storage *s)
 {
         struct sockaddr_in6 *s6;
         
-	memset (s, 0, sizeof(*s));        
+    memset (s, 0, sizeof(*s));        
         switch (a->type) {
                 
         case NA_BROADCAST:                        
@@ -142,21 +142,21 @@ void NetadrToSockadr (netadr_t *a, struct sockaddr_storage *s)
                 /* no handling of NA_LOOPBACK, NA_IPX, NA_BROADCAST_IPX */
                 break;
                 
-	}
+    }
 }
 
 void SockadrToNetadr (struct sockaddr_storage *s, netadr_t *a)
 {
         struct sockaddr_in6 *s6;
 
-	if (s->ss_family == AF_INET)
-	{
-		*(int *)&a->ip = *(int *)&((struct sockaddr_in*)s)->sin_addr;
-		a->port = ((struct sockaddr_in*)s)->sin_port;
-		a->type = NA_IP;
-	}
-	else if (s->ss_family == AF_INET6)
-	{
+    if (s->ss_family == AF_INET)
+    {
+        *(int *)&a->ip = *(int *)&((struct sockaddr_in*)s)->sin_addr;
+        a->port = ((struct sockaddr_in*)s)->sin_port;
+        a->type = NA_IP;
+    }
+    else if (s->ss_family == AF_INET6)
+    {
                 s6 = (struct sockaddr_in6 *)s;
 
                 if (IN6_IS_ADDR_V4MAPPED ((struct in6_addr *)&s6->sin6_addr)) {
@@ -173,34 +173,34 @@ void SockadrToNetadr (struct sockaddr_storage *s, netadr_t *a)
                         a->scope_id = s6->sin6_scope_id;
                 }
                 
-	}
-	else
+    }
+    else
                 s = NULL;
 
 }
 
 
-qboolean	NET_CompareAdr (netadr_t a, netadr_t b)
+qboolean    NET_CompareAdr (netadr_t a, netadr_t b)
 {
-	if (a.type != b.type)
-		return false;
+    if (a.type != b.type)
+        return false;
 
-	if (a.type == NA_LOOPBACK)
-		return true;
+    if (a.type == NA_LOOPBACK)
+        return true;
 
-	if (a.type == NA_IP)
-	{
-		if (a.ip[0] == b.ip[0] && a.ip[1] == b.ip[1] && a.ip[2] == b.ip[2] && a.ip[3] == b.ip[3] && a.port == b.port)
-		return true;
-	}
+    if (a.type == NA_IP)
+    {
+        if (a.ip[0] == b.ip[0] && a.ip[1] == b.ip[1] && a.ip[2] == b.ip[2] && a.ip[3] == b.ip[3] && a.port == b.port)
+        return true;
+    }
 
-	if (a.type == NA_IP6)
-	{
-		if ((memcmp(a.ip, b.ip, 16) == 0) && a.port == b.port)
-			return true;
-	}
+    if (a.type == NA_IP6)
+    {
+        if ((memcmp(a.ip, b.ip, 16) == 0) && a.port == b.port)
+            return true;
+    }
 
-	return false;
+    return false;
 }
 
 /*
@@ -210,41 +210,41 @@ NET_CompareBaseAdr
 Compares without the port
 ===================
 */
-qboolean	NET_CompareBaseAdr (netadr_t a, netadr_t b)
+qboolean    NET_CompareBaseAdr (netadr_t a, netadr_t b)
 {
-	if (a.type != b.type)
-		return false;
+    if (a.type != b.type)
+        return false;
 
-	if (a.type == NA_LOOPBACK)
-		return true;
+    if (a.type == NA_LOOPBACK)
+        return true;
 
-	if (a.type == NA_IP)
-	{
-		if (a.ip[0] == b.ip[0] && a.ip[1] == b.ip[1] && a.ip[2] == b.ip[2] && a.ip[3] == b.ip[3])
-			return true;
-		return false;
-	}
+    if (a.type == NA_IP)
+    {
+        if (a.ip[0] == b.ip[0] && a.ip[1] == b.ip[1] && a.ip[2] == b.ip[2] && a.ip[3] == b.ip[3])
+            return true;
+        return false;
+    }
 
-	if (a.type == NA_IP6)
-	{
-		if ((memcmp(a.ip, b.ip, 16) == 0))
-			return true;
-		return false;
-	}
+    if (a.type == NA_IP6)
+    {
+        if ((memcmp(a.ip, b.ip, 16) == 0))
+            return true;
+        return false;
+    }
 
-	if (a.type == NA_IPX)
-	{
-		if ((memcmp(a.ipx, b.ipx, 10) == 0))
-			return true;
-		return false;
-	}
-	return false;
+    if (a.type == NA_IPX)
+    {
+        if ((memcmp(a.ipx, b.ipx, 10) == 0))
+            return true;
+        return false;
+    }
+    return false;
 }
 
-char	*NET_BaseAdrToString (netadr_t a)
+char    *NET_BaseAdrToString (netadr_t a)
 {
-	static	char	s[64], tmp[64];
-	struct sockaddr_storage ss;
+    static    char    s[64], tmp[64];
+    struct sockaddr_storage ss;
         struct sockaddr_in6 *s6;
         int flags;
 
@@ -317,20 +317,20 @@ char	*NET_BaseAdrToString (netadr_t a)
                 Com_sprintf (s, sizeof(s), "invalid IP address family type");
                 break;
                 
-	}
+    }
 
         return s;
 }
 
-char	*NET_AdrToString (netadr_t a)
+char    *NET_AdrToString (netadr_t a)
 {
-        static	char	s[64];
+        static    char    s[64];
         const char *base;
         
         base = NET_BaseAdrToString (a);
-	Com_sprintf (s, sizeof(s), "[%s]:%d", base, ntohs(a.port));
+    Com_sprintf (s, sizeof(s), "[%s]:%d", base, ntohs(a.port));
 
-	return s;
+    return s;
 }
 
 /*
@@ -344,22 +344,22 @@ idnewt:28000
 192.246.40.70:28000
 =============
 */
-qboolean	NET_StringToSockaddr (char *s, struct sockaddr_storage *sadr)
+qboolean    NET_StringToSockaddr (char *s, struct sockaddr_storage *sadr)
 {
-	char	copy[128];
-	char	*addrs, *space;
-	char	*ports = NULL;
-	int	err;
-	struct addrinfo hints;
-	struct addrinfo *resultp;
+    char    copy[128];
+    char    *addrs, *space;
+    char    *ports = NULL;
+    int    err;
+    struct addrinfo hints;
+    struct addrinfo *resultp;
 
-	memset (&hints,0, sizeof(hints));
-	hints.ai_socktype = SOCK_DGRAM;
-	hints.ai_family = PF_UNSPEC;
+    memset (&hints,0, sizeof(hints));
+    hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_family = PF_UNSPEC;
 
-	strcpy (copy, s);
-	addrs = space = copy;
-	if (*addrs == '[') {
+    strcpy (copy, s);
+    addrs = space = copy;
+    if (*addrs == '[') {
                 addrs++;
                 for (; *space && *space != ']'; space++);
                 if (!*space) {
@@ -369,38 +369,38 @@ qboolean	NET_StringToSockaddr (char *s, struct sockaddr_storage *sadr)
                 *space++ = '\0';
         }
 
-	for (; *space; space++) {
+    for (; *space; space++) {
                 if (*space == ':') {
                         *space = '\0';
                         ports = space + 1;
                 }
         }
 
-	if ((err = getaddrinfo (addrs, ports, &hints, &resultp))) {
+    if ((err = getaddrinfo (addrs, ports, &hints, &resultp))) {
                 // Error
                 Com_Printf ("NET_StringToSockaddr: string %s:\n%s\n", s, gai_strerror(err));
                 return 0;
         }
 
-	switch (resultp->ai_family) {
+    switch (resultp->ai_family) {
                 case AF_INET:
                         // convert to ipv4 addr
                         memset (sadr, 0, sizeof (struct sockaddr_storage));
-			memcpy (sadr, resultp->ai_addr, resultp->ai_addrlen);
+            memcpy (sadr, resultp->ai_addr, resultp->ai_addrlen);
                         break;
                 case AF_INET6:
                         // convert to ipv6 addr
                         memset (sadr, 0, sizeof (struct sockaddr_storage));
-			memcpy (sadr, resultp->ai_addr, resultp->ai_addrlen);
+            memcpy (sadr, resultp->ai_addr, resultp->ai_addrlen);
                         break;
-		default:
+        default:
                         Com_Printf
                                 ("NET_StringToSockaddr: string %s:\nprotocol family %d not supported\n",
                                  s, resultp->ai_family);
                 return 0;
         }
 
-	return true;
+    return true;
 }
 
 /*
@@ -414,29 +414,29 @@ idnewt:28000
 192.246.40.70:28000
 =============
 */
-qboolean	NET_StringToAdr (char *s, netadr_t *a)
+qboolean    NET_StringToAdr (char *s, netadr_t *a)
 {
-	struct sockaddr_storage sadr;
+    struct sockaddr_storage sadr;
 
         memset (a, 0, sizeof(*a));
-	if (!strcmp (s, "localhost"))
-	{
-		a->type = NA_LOOPBACK;
-		return true;
-	}
+    if (!strcmp (s, "localhost"))
+    {
+        a->type = NA_LOOPBACK;
+        return true;
+    }
 
-	if (!NET_StringToSockaddr (s, &sadr))
-		return false;
+    if (!NET_StringToSockaddr (s, &sadr))
+        return false;
 
-	SockadrToNetadr (&sadr, a);
+    SockadrToNetadr (&sadr, a);
 
-	return true;
+    return true;
 }
 
 
-qboolean	NET_IsLocalAddress (netadr_t adr)
+qboolean    NET_IsLocalAddress (netadr_t adr)
 {
-	return NET_CompareAdr (adr, net_local_adr);
+    return NET_CompareAdr (adr, net_local_adr);
 }
 
 /*
@@ -447,133 +447,133 @@ LOOPBACK BUFFERS FOR LOCAL PLAYER
 =============================================================================
 */
 
-qboolean	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, sizebuf_t *net_message)
+qboolean    NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, sizebuf_t *net_message)
 {
-	int		i;
-	loopback_t	*loop;
+    int        i;
+    loopback_t    *loop;
 
-	loop = &loopbacks[sock];
+    loop = &loopbacks[sock];
 
-	if (loop->send - loop->get > MAX_LOOPBACK)
-		loop->get = loop->send - MAX_LOOPBACK;
+    if (loop->send - loop->get > MAX_LOOPBACK)
+        loop->get = loop->send - MAX_LOOPBACK;
 
-	if (loop->get >= loop->send)
-		return false;
+    if (loop->get >= loop->send)
+        return false;
 
-	i = loop->get & (MAX_LOOPBACK-1);
-	loop->get++;
+    i = loop->get & (MAX_LOOPBACK-1);
+    loop->get++;
 
-	memcpy (net_message->data, loop->msgs[i].data, loop->msgs[i].datalen);
-	net_message->cursize = loop->msgs[i].datalen;
-	*net_from = net_local_adr;
-	return true;
+    memcpy (net_message->data, loop->msgs[i].data, loop->msgs[i].datalen);
+    net_message->cursize = loop->msgs[i].datalen;
+    *net_from = net_local_adr;
+    return true;
 
 }
 
 
 void NET_SendLoopPacket (netsrc_t sock, int length, void *data, netadr_t to)
 {
-	int		i;
-	loopback_t	*loop;
+    int        i;
+    loopback_t    *loop;
 
-	loop = &loopbacks[sock^1];
+    loop = &loopbacks[sock^1];
 
-	i = loop->send & (MAX_LOOPBACK-1);
-	loop->send++;
+    i = loop->send & (MAX_LOOPBACK-1);
+    loop->send++;
 
-	memcpy (loop->msgs[i].data, data, length);
-	loop->msgs[i].datalen = length;
+    memcpy (loop->msgs[i].data, data, length);
+    loop->msgs[i].datalen = length;
 }
 
 //=============================================================================
 
-qboolean	NET_GetPacket (netsrc_t sock, netadr_t *net_from, sizebuf_t *net_message)
+qboolean    NET_GetPacket (netsrc_t sock, netadr_t *net_from, sizebuf_t *net_message)
 {
-	int 	ret;
-	struct sockaddr_storage	from;
-	socklen_t	fromlen;
-	int		net_socket;
-	int		protocol;
-	int		err;
+    int     ret;
+    struct sockaddr_storage    from;
+    socklen_t    fromlen;
+    int        net_socket;
+    int        protocol;
+    int        err;
 
-	if (NET_GetLoopPacket (sock, net_from, net_message))
-		return true;
+    if (NET_GetLoopPacket (sock, net_from, net_message))
+        return true;
 
-	for (protocol = 0 ; protocol < 3 ; protocol++)
-	{
-		if (protocol == 0)
-			net_socket = ip_sockets[sock];
-		else if (protocol == 1)
+    for (protocol = 0 ; protocol < 3 ; protocol++)
+    {
+        if (protocol == 0)
+            net_socket = ip_sockets[sock];
+        else if (protocol == 1)
                         net_socket = ip6_sockets[sock];
                 else
-			net_socket = ipx_sockets[sock];
+            net_socket = ipx_sockets[sock];
 
-		if (!net_socket)
-			continue;
+        if (!net_socket)
+            continue;
 
-		fromlen = sizeof(from);
-		ret = recvfrom (net_socket, net_message->data, net_message->maxsize,
+        fromlen = sizeof(from);
+        ret = recvfrom (net_socket, net_message->data, net_message->maxsize,
                                 0, (struct sockaddr *)&from, &fromlen);
 
-		SockadrToNetadr (&from, net_from);
+        SockadrToNetadr (&from, net_from);
 
-		if (ret == -1)
-		{
-			err = errno;
+        if (ret == -1)
+        {
+            err = errno;
 
-			if (err == EWOULDBLOCK || err == ECONNREFUSED)
-				continue;
-			Com_Printf ("NET_GetPacket: %s from %s\n", NET_ErrorString(),
-						NET_AdrToString(*net_from));
-			continue;
-		}
+            if (err == EWOULDBLOCK || err == ECONNREFUSED)
+                continue;
+            Com_Printf ("NET_GetPacket: %s from %s\n", NET_ErrorString(),
+                        NET_AdrToString(*net_from));
+            continue;
+        }
 
-		if (ret == net_message->maxsize)
-		{
-			Com_Printf ("Oversize packet from %s\n", NET_AdrToString (*net_from));
-			continue;
-		}
+        if (ret == net_message->maxsize)
+        {
+            Com_Printf ("Oversize packet from %s\n", NET_AdrToString (*net_from));
+            continue;
+        }
 
-		net_message->cursize = ret;
-		return true;
-	}
+        net_message->cursize = ret;
+        return true;
+    }
 
-	return false;
+    return false;
 }
 
 //=============================================================================
 
 void NET_SendPacket (netsrc_t sock, int length, void *data, netadr_t to)
 {
-	int		ret;
-	struct sockaddr_storage	addr;
-	int		net_socket;
-        int		addr_size = sizeof(struct sockaddr_in);
+    int        ret;
+    struct sockaddr_storage    addr;
+    int        net_socket;
+        int        addr_size = sizeof(struct sockaddr_in);
 
         switch (to.type) {
                 
         case NA_LOOPBACK:
-		NET_SendLoopPacket (sock, length, data, to);
-		return;
+        NET_SendLoopPacket (sock, length, data, to);
+        return;
                 break;
         case NA_BROADCAST:
         case NA_IP:
-		net_socket = ip_sockets[sock];
-		if (!net_socket)
-			return;
+        net_socket = ip_sockets[sock];
+        if (!net_socket)
+            return;
                 break;
         case NA_IP6:
         case NA_MULTICAST6:
-		net_socket = ip6_sockets[sock];
-		addr_size = sizeof(struct sockaddr_in6);
-		if (!net_socket)
-			return;
+        net_socket = ip6_sockets[sock];
+        addr_size = sizeof(struct sockaddr_in6);
+        if (!net_socket)
+            return;
                 break;
         case NA_IPX:
         case NA_BROADCAST_IPX:
-		net_socket = ipx_sockets[sock];
-		if (!net_socket)
-			return;
+        net_socket = ipx_sockets[sock];
+        if (!net_socket)
+            return;
                 break;
         default:
                 Com_Error (ERR_FATAL, "NET_SendPacket: bad address type");
@@ -581,7 +581,7 @@ void NET_SendPacket (netsrc_t sock, int length, void *data, netadr_t to)
                 break;
         }
 
-	NetadrToSockadr (&to, &addr);
+    NetadrToSockadr (&to, &addr);
 
         /* Re-check the address family. If to.type is NA_IP6 but
          * contains an IPv4 mapped address, NetadrToSockadr will
@@ -590,8 +590,8 @@ void NET_SendPacket (netsrc_t sock, int length, void *data, netadr_t to)
         if (to.type == NA_IP6 && addr.ss_family == AF_INET) {
                 net_socket = ip_sockets[sock];
                 addr_size = sizeof(struct sockaddr_in);
-		if (!net_socket)
-			return;
+        if (!net_socket)
+            return;
         }
         if (addr.ss_family == AF_INET6) {
                 struct sockaddr_in6 *s6 = (struct sockaddr_in6 *)&addr;
@@ -672,19 +672,19 @@ NET_OpenIP
 */
 void NET_OpenIP (void)
 {
-	cvar_t	*port, *ip;
+    cvar_t    *port, *ip;
 
-	port = Cvar_Get ("port", va("%i", PORT_SERVER), CVAR_NOSET);
-	ip = Cvar_Get ("ip", "localhost", CVAR_NOSET);
+    port = Cvar_Get ("port", va("%i", PORT_SERVER), CVAR_NOSET);
+    ip = Cvar_Get ("ip", "localhost", CVAR_NOSET);
 
-	if (!ip6_sockets[NS_SERVER])
-		ip6_sockets[NS_SERVER] = NET_Socket (ip->string, port->value, NS_SERVER, AF_INET6);
-	if (!ip6_sockets[NS_CLIENT])
-		ip6_sockets[NS_CLIENT] = NET_Socket (ip->string, PORT_ANY, NS_CLIENT, AF_INET6);
-	if (!ip_sockets[NS_SERVER])
-		ip_sockets[NS_SERVER] = NET_Socket (ip->string, port->value, NS_SERVER, AF_INET);
-	if (!ip_sockets[NS_CLIENT])
-		ip_sockets[NS_CLIENT] = NET_Socket (ip->string, PORT_ANY, NS_CLIENT, AF_INET);
+    if (!ip6_sockets[NS_SERVER])
+        ip6_sockets[NS_SERVER] = NET_Socket (ip->string, port->value, NS_SERVER, AF_INET6);
+    if (!ip6_sockets[NS_CLIENT])
+        ip6_sockets[NS_CLIENT] = NET_Socket (ip->string, PORT_ANY, NS_CLIENT, AF_INET6);
+    if (!ip_sockets[NS_SERVER])
+        ip_sockets[NS_SERVER] = NET_Socket (ip->string, port->value, NS_SERVER, AF_INET);
+    if (!ip_sockets[NS_CLIENT])
+        ip_sockets[NS_CLIENT] = NET_Socket (ip->string, PORT_ANY, NS_CLIENT, AF_INET);
 }
 
 /*
@@ -704,36 +704,36 @@ NET_Config
 A single player game will only use the loopback code
 ====================
 */
-void	NET_Config (qboolean multiplayer)
+void    NET_Config (qboolean multiplayer)
 {
-	int		i;
+    int        i;
 
-	if (!multiplayer)
-	{	// shut down any existing sockets
-		for (i=0 ; i<2 ; i++)
-		{
-			if (ip_sockets[i])
-			{
-				close (ip_sockets[i]);
-				ip_sockets[i] = 0;
-			}
-			if (ip6_sockets[i])
-			{
-				close (ip6_sockets[i]);
-				ip6_sockets[i] = 0;
-			}
-			if (ipx_sockets[i])
-			{
-				close (ipx_sockets[i]);
-				ipx_sockets[i] = 0;
-			}
-		}
-	}
-	else
-	{	// open sockets
-		NET_OpenIP ();
-		NET_OpenIPX ();
-	}
+    if (!multiplayer)
+    {    // shut down any existing sockets
+        for (i=0 ; i<2 ; i++)
+        {
+            if (ip_sockets[i])
+            {
+                close (ip_sockets[i]);
+                ip_sockets[i] = 0;
+            }
+            if (ip6_sockets[i])
+            {
+                close (ip6_sockets[i]);
+                ip6_sockets[i] = 0;
+            }
+            if (ipx_sockets[i])
+            {
+                close (ipx_sockets[i]);
+                ipx_sockets[i] = 0;
+            }
+        }
+    }
+    else
+    {    // open sockets
+        NET_OpenIP ();
+        NET_OpenIPX ();
+    }
 }
 
 
@@ -762,7 +762,7 @@ int NET_Socket (char *net_interface, int port, netsrc_t type, int family)
         struct sockaddr_storage ss;
         struct addrinfo hints, *res, *ai;
         qboolean _true = true;
-        int	i = 1;
+        int    i = 1;
 #ifdef IPV6_BINDV6ONLY
         int         dummy;
 #endif
@@ -875,9 +875,9 @@ int NET_Socket (char *net_interface, int port, netsrc_t type, int family)
 NET_Shutdown
 ====================
 */
-void	NET_Shutdown (void)
+void    NET_Shutdown (void)
 {
-	NET_Config (false);	// close sockets
+    NET_Config (false);    // close sockets
 }
 
 
@@ -888,30 +888,30 @@ NET_ErrorString
 */
 char *NET_ErrorString (void)
 {
-	int		code;
+    int        code;
 
-	code = errno;
-	return strerror (code);
+    code = errno;
+    return strerror (code);
 }
 
 // sleeps msec or until net socket is ready
 void NET_Sleep(int msec)
 {
     struct timeval timeout;
-	fd_set	fdset;
-	extern cvar_t *dedicated;
-	extern qboolean stdin_active;
+    fd_set    fdset;
+    extern cvar_t *dedicated;
+    extern qboolean stdin_active;
 
-	if ( (!ip_sockets[NS_SERVER] && !ip6_sockets[NS_SERVER]) || (dedicated && !dedicated->value))
-		return; // we're not a server, just run full speed
+    if ( (!ip_sockets[NS_SERVER] && !ip6_sockets[NS_SERVER]) || (dedicated && !dedicated->value))
+        return; // we're not a server, just run full speed
 
-	FD_ZERO(&fdset);
-	if (stdin_active)
-		FD_SET(0, &fdset); // stdin is processed too
-	FD_SET(ip_sockets[NS_SERVER], &fdset); // IPv4 network socket
-	FD_SET(ip6_sockets[NS_SERVER], &fdset); // IPv6 network socket
-	timeout.tv_sec = msec/1000;
-	timeout.tv_usec = (msec%1000)*1000;
-	select(MAX(ip_sockets[NS_SERVER],ip6_sockets[NS_SERVER])+1, &fdset, NULL, NULL, &timeout);
+    FD_ZERO(&fdset);
+    if (stdin_active)
+        FD_SET(0, &fdset); // stdin is processed too
+    FD_SET(ip_sockets[NS_SERVER], &fdset); // IPv4 network socket
+    FD_SET(ip6_sockets[NS_SERVER], &fdset); // IPv6 network socket
+    timeout.tv_sec = msec/1000;
+    timeout.tv_usec = (msec%1000)*1000;
+    select(MAX(ip_sockets[NS_SERVER],ip6_sockets[NS_SERVER])+1, &fdset, NULL, NULL, &timeout);
 }
 

@@ -10,25 +10,25 @@
 // state struct passed in Init
 
 static cvar_t   *in_joystick;
-static cvar_t	*joy_name;
+static cvar_t    *joy_name;
 static cvar_t   *joy_dev;
-static cvar_t	*joy_advanced;
-static cvar_t	*joy_advaxisx;
-static cvar_t	*joy_advaxisy;
-static cvar_t	*joy_advaxisz;
-static cvar_t	*joy_advaxisr;
-static cvar_t	*joy_advaxisu;
-static cvar_t	*joy_advaxisv;
-static cvar_t	*joy_forwardthreshold;
-static cvar_t	*joy_sidethreshold;
-static cvar_t	*joy_pitchthreshold;
-static cvar_t	*joy_yawthreshold;
-static cvar_t	*joy_forwardsensitivity;
-static cvar_t	*joy_sidesensitivity;
-static cvar_t	*joy_pitchsensitivity;
-static cvar_t	*joy_yawsensitivity;
-static cvar_t	*joy_upthreshold;
-static cvar_t	*joy_upsensitivity;
+static cvar_t    *joy_advanced;
+static cvar_t    *joy_advaxisx;
+static cvar_t    *joy_advaxisy;
+static cvar_t    *joy_advaxisz;
+static cvar_t    *joy_advaxisr;
+static cvar_t    *joy_advaxisu;
+static cvar_t    *joy_advaxisv;
+static cvar_t    *joy_forwardthreshold;
+static cvar_t    *joy_sidethreshold;
+static cvar_t    *joy_pitchthreshold;
+static cvar_t    *joy_yawthreshold;
+static cvar_t    *joy_forwardsensitivity;
+static cvar_t    *joy_sidesensitivity;
+static cvar_t    *joy_pitchsensitivity;
+static cvar_t    *joy_yawsensitivity;
+static cvar_t    *joy_upthreshold;
+static cvar_t    *joy_upsensitivity;
 
 static cvar_t  *cl_upspeed;
 static cvar_t  *cl_forwardspeed;
@@ -85,7 +85,7 @@ void RW_IN_InitJoystick() {
     joy_advaxisv = ri.Cvar_Get ("joy_advaxisv","0",0);
     joy_forwardthreshold = ri.Cvar_Get ("joy_forwardthreshold","0.15",0);
     joy_sidethreshold = ri.Cvar_Get ("joy_sidethreshold","0.15",0);
-    joy_upthreshold	= ri.Cvar_Get ("joy_upthreshold", "0.15",0);
+    joy_upthreshold    = ri.Cvar_Get ("joy_upthreshold", "0.15",0);
     joy_pitchthreshold = ri.Cvar_Get ("joy_pitchthreshold","0.15",0);
     joy_yawthreshold = ri.Cvar_Get ("joy_yawthreshold","0.15",0);
     joy_forwardsensitivity = ri.Cvar_Get ("joy_forwardsensitivity","-1",0);
@@ -107,8 +107,8 @@ void RW_IN_InitJoystick() {
       axis_map = (int *)malloc(sizeof(int)*6);
       axis_vals = (int *)malloc(sizeof(int)*6);
       for (i=0;i<6;i++) {
-	axis_map[i] = 0;
-	axis_vals[i] = 0;
+    axis_map[i] = 0;
+    axis_vals[i] = 0;
       }
       axis_map[0]=3;
       axis_map[1]=1;
@@ -123,7 +123,7 @@ void RW_IN_InitJoystick() {
 }
 
 void RW_IN_JoystickMove(usercmd_t *cmd, qboolean mlooking, 
-			cvar_t *lookstrafe, cvar_t *m_pitch) {
+            cvar_t *lookstrafe, cvar_t *m_pitch) {
   in_state_t *in_state = getState();
   
   if (joy_avail) {
@@ -150,52 +150,52 @@ void RW_IN_JoystickMove(usercmd_t *cmd, qboolean mlooking,
       // if mouse invert is on, invert the joystick pitch value
       // only absolute control support here (joy_advanced is false)
       if (fabs(jforward) > joy_pitchthreshold->value) {
-	if (m_pitch->value < 0.0) {
-	  in_state->viewangles[PITCH] -= 
-	    jforward*joy_pitchsensitivity->value*aspeed*cl_pitchspeed->value;
-	}
-	else {
-	  in_state->viewangles[PITCH] += 
-	    jforward*joy_pitchsensitivity->value*aspeed*cl_pitchspeed->value;
-	}
+    if (m_pitch->value < 0.0) {
+      in_state->viewangles[PITCH] -= 
+        jforward*joy_pitchsensitivity->value*aspeed*cl_pitchspeed->value;
+    }
+    else {
+      in_state->viewangles[PITCH] += 
+        jforward*joy_pitchsensitivity->value*aspeed*cl_pitchspeed->value;
+    }
       }
     }
     else if (fabs(jforward) > joy_forwardthreshold->value) {
       // user wants forward control to be forward control
       cmd->forwardmove += 
-	jforward*joy_forwardsensitivity->value*speed*cl_forwardspeed->value;
+    jforward*joy_forwardsensitivity->value*speed*cl_forwardspeed->value;
     }
     
     if (fabs(jside)>joy_sidethreshold->value) {
       cmd->sidemove += 
-	(jside*joy_sidesensitivity->value)*speed*cl_sidespeed->value;
+    (jside*joy_sidesensitivity->value)*speed*cl_sidespeed->value;
     }
     
     if (fabs(jup) > joy_upthreshold->value) {
       cmd->upmove += 
-	(jup * joy_upsensitivity->value) * speed*cl_upspeed->value;
+    (jup * joy_upsensitivity->value) * speed*cl_upspeed->value;
     }
 
     if (((*in_state->in_strafe_state) & 1)||(lookstrafe->value && mlooking)) {
       // user wants turn control to become side control
       if (fabs(jturn) > joy_sidethreshold->value) {
-	cmd->sidemove -= 
-	  (jturn*joy_sidesensitivity->value)*speed*cl_sidespeed->value;
+    cmd->sidemove -= 
+      (jturn*joy_sidesensitivity->value)*speed*cl_sidespeed->value;
       }
     }
     else {
       // user wants turn control to be turn control
       if (fabs(jturn) > joy_yawthreshold->value) {
-	in_state->viewangles[YAW] += 
-	  (jturn*joy_yawsensitivity->value)*aspeed*cl_yawspeed->value;
+    in_state->viewangles[YAW] += 
+      (jturn*joy_yawsensitivity->value)*aspeed*cl_yawspeed->value;
       }
     }
     
     //    if (mlooking) {
       if (fabs(jlook) > joy_pitchthreshold->value) {
-	// pitch movement detected and pitch movement desired by user
-	in_state->viewangles[PITCH] += 
-	  (jlook*joy_pitchsensitivity->value) * aspeed*cl_pitchspeed->value;
+    // pitch movement detected and pitch movement desired by user
+    in_state->viewangles[PITCH] += 
+      (jlook*joy_pitchsensitivity->value) * aspeed*cl_pitchspeed->value;
       }
       //}
 

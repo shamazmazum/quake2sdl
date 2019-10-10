@@ -38,7 +38,7 @@ Makefile options:
 -----------------
 (quake2 and gamei386.so are always built, but the following options can be
  changed by editing the Makefile)
-BUILD_SDLQUAKE2		Build sdlquake2, a quake2 binary that uses SDL for
+BUILD_SDLQUAKE2        Build sdlquake2, a quake2 binary that uses SDL for
                         CD audio and sound access (default = YES).
 BUILD_SVGA              Build ref_soft.so, a quake2 video driver that uses
                         SVGAlib (default = NO).
@@ -59,17 +59,17 @@ BUILD_XATRIX            Build the Xatrix gamei386.so for the "The Reckoning"
                         Mission Pack (default = NO). [see notes below]
 BUILD_ROGUE             Build the Rogue gamei386.so for the "Ground Zero"
                         Mission Pack (default = NO). [see notes below]
-HAVE_IPV6		Build quake2 with IPv6 support (currently only
+HAVE_IPV6        Build quake2 with IPv6 support (currently only
                         tested on FreeBSD, see below for info) (default = NO).
-BUILD_JOYSTICK		Build quake2 with support for SDL and Linux joysticks,
-			[default = YES].
-BUILD_ARTS		Build support for the aRts sound system 
-			(src/linux/snd_arts.c) [default = NO]
-BUILD_ALSA		Build support for the ALSA sound system [default = NO]
-BUILD_DEDICATED		Build the quake 2 dedicated server q2ded.
-BUILD_QMAX		Build the eye-candy oriented Quame2 Max (see below)
-BUILD_AA		Build the aalib text mode renderer.
-BUILD_RETEXTURE		Build support for retextured textures, see:
+BUILD_JOYSTICK        Build quake2 with support for SDL and Linux joysticks,
+            [default = YES].
+BUILD_ARTS        Build support for the aRts sound system 
+            (src/linux/snd_arts.c) [default = NO]
+BUILD_ALSA        Build support for the ALSA sound system [default = NO]
+BUILD_DEDICATED        Build the quake 2 dedicated server q2ded.
+BUILD_QMAX        Build the eye-candy oriented Quame2 Max (see below)
+BUILD_AA        Build the aalib text mode renderer.
+BUILD_RETEXTURE        Build support for retextured textures, see:
 http://http://3d.kicks-ass.net/texturepaks/
 
 To install the Quake2 demo data:
@@ -273,7 +273,7 @@ the Makefile.
 Have a look at src/docs/joystick.txt for the details
 
 There is a single linux specific option: 
-	* joy_dev : this sets the device name of the joystick to use (/dev/js*)
+    * joy_dev : this sets the device name of the joystick to use (/dev/js*)
 
 
 Windows Support:
@@ -301,7 +301,7 @@ gl_driver <libGL.so>    // point quake2 to your libGL
 dedicated 1             // run quake2 as a dedicated server
 game <subdir>           // load the quake2 mod in that directory
 sensitivity <int>       // Adjust the sensivity (accelleration) of the mouse.
-crosshair <int>		// Choose your crosshair [1-3] Normal [1-9] Q2Max
+crosshair <int>        // Choose your crosshair [1-3] Normal [1-9] Q2Max
 crosshair_scale <int>   // Scale your crosshair (Q2Max only for now...)
 
 When using these commands on the quake2 command line, use +set to cause the

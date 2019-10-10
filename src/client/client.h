@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // client.h -- primary header for client
 
-//define	PARANOID			// speed sapping error checking
+//define    PARANOID            // speed sapping error checking
 
 #ifdef __x86_64__
 #define INT long int
@@ -47,62 +47,62 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //=============================================================================
 
 #ifdef QMAX
-#define random()	((rand () & 0x7fff) / ((float)0x7fff))
-#define crandom()	(2.0 * (random() - 0.5))
+#define random()    ((rand () & 0x7fff) / ((float)0x7fff))
+#define crandom()    (2.0 * (random() - 0.5))
 vec3_t clientOrg; //lerped org of client for server->client side effects
 
 void vectoangles2 (vec3_t value1, vec3_t angles);
 
 #include "particles.h"
 
-int	color8red (int color8);
-int	color8green (int color8);
-int	color8blue (int color8);
+int    color8red (int color8);
+int    color8green (int color8);
+int    color8blue (int color8);
 #endif
 
 typedef struct
 {
-	qboolean		valid;			// cleared if delta parsing was invalid
-	int				serverframe;
-	int				servertime;		// server time the message is valid for (in msec)
-	int				deltaframe;
-	byte			areabits[MAX_MAP_AREAS/8];		// portalarea visibility bits
-	player_state_t	playerstate;
-	int				num_entities;
-	int				parse_entities;	// non-masked index into cl_parse_entities array
+    qboolean        valid;            // cleared if delta parsing was invalid
+    int                serverframe;
+    int                servertime;        // server time the message is valid for (in msec)
+    int                deltaframe;
+    byte            areabits[MAX_MAP_AREAS/8];        // portalarea visibility bits
+    player_state_t    playerstate;
+    int                num_entities;
+    int                parse_entities;    // non-masked index into cl_parse_entities array
 } frame_t;
 
 typedef struct
 {
-	entity_state_t	baseline;		// delta from this if not from a previous frame
-	entity_state_t	current;
-	entity_state_t	prev;			// will always be valid, but might just be a copy of current
+    entity_state_t    baseline;        // delta from this if not from a previous frame
+    entity_state_t    current;
+    entity_state_t    prev;            // will always be valid, but might just be a copy of current
 
-	int			serverframe;		// if not current, this ent isn't in the frame
+    int            serverframe;        // if not current, this ent isn't in the frame
 
-	int			trailcount;			// for diminishing grenade trails
-	vec3_t		lerp_origin;		// for trails (variable hz)
+    int            trailcount;            // for diminishing grenade trails
+    vec3_t        lerp_origin;        // for trails (variable hz)
 
-	int			fly_stoptime;
+    int            fly_stoptime;
 } centity_t;
 
-#define MAX_CLIENTWEAPONMODELS		20		// PGM -- upped from 16 to fit the chainfist vwep
+#define MAX_CLIENTWEAPONMODELS        20        // PGM -- upped from 16 to fit the chainfist vwep
 
 typedef struct
 {
-	char	name[MAX_QPATH];
-	char	cinfo[MAX_QPATH];
-	struct image_s	*skin;
-	struct image_s	*icon;
-	char	iconname[MAX_QPATH];
-	struct model_s	*model;
-	struct model_s	*weaponmodel[MAX_CLIENTWEAPONMODELS];
+    char    name[MAX_QPATH];
+    char    cinfo[MAX_QPATH];
+    struct image_s    *skin;
+    struct image_s    *icon;
+    char    iconname[MAX_QPATH];
+    struct model_s    *model;
+    struct model_s    *weaponmodel[MAX_CLIENTWEAPONMODELS];
 } clientinfo_t;
 
 extern char cl_weaponmodels[MAX_CLIENTWEAPONMODELS][MAX_QPATH];
 extern int num_cl_weaponmodels;
 
-#define	CMD_BACKUP		64	// allow a lot of command backups for very fast systems
+#define    CMD_BACKUP        64    // allow a lot of command backups for very fast systems
 
 //
 // the client_state_t structure is wiped completely at every
@@ -110,87 +110,87 @@ extern int num_cl_weaponmodels;
 //
 typedef struct
 {
-	int			timeoutcount;
+    int            timeoutcount;
 
-	int			timedemo_frames;
-	int			timedemo_start;
+    int            timedemo_frames;
+    int            timedemo_start;
 
-	qboolean	refresh_prepped;	// false if on new level or new ref dll
-	qboolean	sound_prepped;		// ambient sounds can start
-	qboolean	force_refdef;		// vid has changed, so we can't use a paused refdef
+    qboolean    refresh_prepped;    // false if on new level or new ref dll
+    qboolean    sound_prepped;        // ambient sounds can start
+    qboolean    force_refdef;        // vid has changed, so we can't use a paused refdef
 
-	int			parse_entities;		// index (not anded off) into cl_parse_entities[]
+    int            parse_entities;        // index (not anded off) into cl_parse_entities[]
 
-	usercmd_t	cmd;
-	usercmd_t	cmds[CMD_BACKUP];	// each mesage will send several old cmds
-	int			cmd_time[CMD_BACKUP];	// time sent, for calculating pings
-	short		predicted_origins[CMD_BACKUP][3];	// for debug comparing against server
+    usercmd_t    cmd;
+    usercmd_t    cmds[CMD_BACKUP];    // each mesage will send several old cmds
+    int            cmd_time[CMD_BACKUP];    // time sent, for calculating pings
+    short        predicted_origins[CMD_BACKUP][3];    // for debug comparing against server
 
-	float		predicted_step;				// for stair up smoothing
-	unsigned	predicted_step_time;
+    float        predicted_step;                // for stair up smoothing
+    unsigned    predicted_step_time;
 
-	vec3_t		predicted_origin;	// generated by CL_PredictMovement
-	vec3_t		predicted_angles;
-	vec3_t		prediction_error;
+    vec3_t        predicted_origin;    // generated by CL_PredictMovement
+    vec3_t        predicted_angles;
+    vec3_t        prediction_error;
 
-	frame_t		frame;				// received from server
-	int			surpressCount;		// number of messages rate supressed
-	frame_t		frames[UPDATE_BACKUP];
+    frame_t        frame;                // received from server
+    int            surpressCount;        // number of messages rate supressed
+    frame_t        frames[UPDATE_BACKUP];
 
-	// the client maintains its own idea of view angles, which are
-	// sent to the server each frame.  It is cleared to 0 upon entering each level.
-	// the server sends a delta each frame which is added to the locally
-	// tracked view angles to account for standing on rotating objects,
-	// and teleport direction changes
-	vec3_t		viewangles;
+    // the client maintains its own idea of view angles, which are
+    // sent to the server each frame.  It is cleared to 0 upon entering each level.
+    // the server sends a delta each frame which is added to the locally
+    // tracked view angles to account for standing on rotating objects,
+    // and teleport direction changes
+    vec3_t        viewangles;
 
-	int			time;			// this is the time value that the client
-								// is rendering at.  always <= cls.realtime
-	float		lerpfrac;		// between oldframe and frame
+    int            time;            // this is the time value that the client
+                                // is rendering at.  always <= cls.realtime
+    float        lerpfrac;        // between oldframe and frame
 
-	refdef_t	refdef;
+    refdef_t    refdef;
 
-	vec3_t		v_forward, v_right, v_up;	// set when refdef.angles is set
+    vec3_t        v_forward, v_right, v_up;    // set when refdef.angles is set
 
-	//
-	// transient data from server
-	//
-	char		layout[1024];		// general 2D overlay
-	int			inventory[MAX_ITEMS];
+    //
+    // transient data from server
+    //
+    char        layout[1024];        // general 2D overlay
+    int            inventory[MAX_ITEMS];
 
-	//
-	// non-gameserver infornamtion
-	// FIXME: move this cinematic stuff into the cin_t structure
-	FILE		*cinematic_file;
-	int			cinematictime;		// cls.realtime for first cinematic frame
-	int			cinematicframe;
-	unsigned char	cinematicpalette[768];
-	qboolean	cinematicpalette_active;
+    //
+    // non-gameserver infornamtion
+    // FIXME: move this cinematic stuff into the cin_t structure
+    FILE        *cinematic_file;
+    int            cinematictime;        // cls.realtime for first cinematic frame
+    int            cinematicframe;
+    unsigned char    cinematicpalette[768];
+    qboolean    cinematicpalette_active;
 
-	//
-	// server state information
-	//
-	qboolean	attractloop;		// running the attract loop, any key will menu
-	int			servercount;	// server identification for prespawns
-	char		gamedir[MAX_QPATH];
-	int			playernum;
+    //
+    // server state information
+    //
+    qboolean    attractloop;        // running the attract loop, any key will menu
+    int            servercount;    // server identification for prespawns
+    char        gamedir[MAX_QPATH];
+    int            playernum;
 
-	char		configstrings[MAX_CONFIGSTRINGS][MAX_QPATH];
+    char        configstrings[MAX_CONFIGSTRINGS][MAX_QPATH];
 
-	//
-	// locally derived information from server state
-	//
-	struct model_s	*model_draw[MAX_MODELS];
-	struct cmodel_s	*model_clip[MAX_MODELS];
+    //
+    // locally derived information from server state
+    //
+    struct model_s    *model_draw[MAX_MODELS];
+    struct cmodel_s    *model_clip[MAX_MODELS];
 
-	struct sfx_s	*sound_precache[MAX_SOUNDS];
-	struct image_s	*image_precache[MAX_IMAGES];
+    struct sfx_s    *sound_precache[MAX_SOUNDS];
+    struct image_s    *image_precache[MAX_IMAGES];
 
-	clientinfo_t	clientinfo[MAX_CLIENTS];
-	clientinfo_t	baseclientinfo;
+    clientinfo_t    clientinfo[MAX_CLIENTS];
+    clientinfo_t    baseclientinfo;
 } client_state_t;
 
-extern	client_state_t	cl;
+extern    client_state_t    cl;
 
 /*
 ==================================================================
@@ -202,183 +202,183 @@ of server connections
 */
 
 typedef enum {
-	ca_uninitialized,
-	ca_disconnected, 	// not talking to a server
-	ca_connecting,		// sending request packets to the server
-	ca_connected,		// netchan_t established, waiting for svc_serverdata
-	ca_active			// game views should be displayed
+    ca_uninitialized,
+    ca_disconnected,     // not talking to a server
+    ca_connecting,        // sending request packets to the server
+    ca_connected,        // netchan_t established, waiting for svc_serverdata
+    ca_active            // game views should be displayed
 } connstate_t;
 
 typedef enum {
-	dl_none,
-	dl_model,
-	dl_sound,
-	dl_skin,
-	dl_single
-} dltype_t;		// download type
+    dl_none,
+    dl_model,
+    dl_sound,
+    dl_skin,
+    dl_single
+} dltype_t;        // download type
 
 typedef enum {key_game, key_console, key_message, key_menu} keydest_t;
 
 typedef struct
 {
-	connstate_t	state;
-	keydest_t	key_dest;
+    connstate_t    state;
+    keydest_t    key_dest;
 
-	int			framecount;
-	int			realtime;			// always increasing, no clamping, etc
-	float		frametime;			// seconds since last frame
+    int            framecount;
+    int            realtime;            // always increasing, no clamping, etc
+    float        frametime;            // seconds since last frame
 
 // screen rendering information
-	float		disable_screen;		// showing loading plaque between levels
-									// or changing rendering dlls
-									// if time gets > 30 seconds ahead, break it
-	int			disable_servercount;	// when we receive a frame and cl.servercount
-									// > cls.disable_servercount, clear disable_screen
+    float        disable_screen;        // showing loading plaque between levels
+                                    // or changing rendering dlls
+                                    // if time gets > 30 seconds ahead, break it
+    int            disable_servercount;    // when we receive a frame and cl.servercount
+                                    // > cls.disable_servercount, clear disable_screen
 
 // connection information
-	char		servername[MAX_OSPATH];	// name of server from original connect
-	float		connect_time;		// for connection retransmits
+    char        servername[MAX_OSPATH];    // name of server from original connect
+    float        connect_time;        // for connection retransmits
 
-	int			quakePort;			// a 16 bit value that allows quake servers
-									// to work around address translating routers
-	netchan_t	netchan;
-	int			serverProtocol;		// in case we are doing some kind of version hack
+    int            quakePort;            // a 16 bit value that allows quake servers
+                                    // to work around address translating routers
+    netchan_t    netchan;
+    int            serverProtocol;        // in case we are doing some kind of version hack
 
-	int			challenge;			// from the server to use for connecting
+    int            challenge;            // from the server to use for connecting
 
-	FILE		*download;			// file transfer from server
-	char		downloadtempname[MAX_OSPATH];
-	char		downloadname[MAX_OSPATH];
-	int			downloadnumber;
-	dltype_t	downloadtype;
-	int			downloadpercent;
+    FILE        *download;            // file transfer from server
+    char        downloadtempname[MAX_OSPATH];
+    char        downloadname[MAX_OSPATH];
+    int            downloadnumber;
+    dltype_t    downloadtype;
+    int            downloadpercent;
 
 // demo recording info must be here, so it isn't cleared on level change
-	qboolean	demorecording;
-	qboolean	demowaiting;	// don't record until a non-delta message is received
-	FILE		*demofile;
+    qboolean    demorecording;
+    qboolean    demowaiting;    // don't record until a non-delta message is received
+    FILE        *demofile;
 } client_static_t;
 
-extern client_static_t	cls;
+extern client_static_t    cls;
 
 //=============================================================================
 
 //
 // cvars
 //
-extern	cvar_t	*cl_stereo_separation;
-extern	cvar_t	*cl_stereo;
+extern    cvar_t    *cl_stereo_separation;
+extern    cvar_t    *cl_stereo;
 
-extern	cvar_t	*cl_gun;
-extern	cvar_t	*cl_add_blend;
-extern	cvar_t	*cl_add_lights;
-extern	cvar_t	*cl_add_particles;
-extern	cvar_t	*cl_add_entities;
-extern	cvar_t	*cl_predict;
-extern	cvar_t	*cl_footsteps;
-extern	cvar_t	*cl_noskins;
-extern	cvar_t	*cl_autoskins;
+extern    cvar_t    *cl_gun;
+extern    cvar_t    *cl_add_blend;
+extern    cvar_t    *cl_add_lights;
+extern    cvar_t    *cl_add_particles;
+extern    cvar_t    *cl_add_entities;
+extern    cvar_t    *cl_predict;
+extern    cvar_t    *cl_footsteps;
+extern    cvar_t    *cl_noskins;
+extern    cvar_t    *cl_autoskins;
 
 #ifdef QMAX
 //psychospaz stuff
 //railgun
-extern	cvar_t	*cl_railred;
-extern	cvar_t	*cl_railgreen;
-extern	cvar_t	*cl_railblue;
-extern	cvar_t	*cl_railtype;
+extern    cvar_t    *cl_railred;
+extern    cvar_t    *cl_railgreen;
+extern    cvar_t    *cl_railblue;
+extern    cvar_t    *cl_railtype;
 //3dcam
-extern	cvar_t	*cl_3dcam;
-extern	cvar_t	*cl_3dcam_angle;
-extern	cvar_t	*cl_3dcam_chase;
-extern	cvar_t	*cl_3dcam_dist;
-extern	cvar_t	*cl_3dcam_alpha;
-extern	cvar_t	*cl_3dcam_adjust;
+extern    cvar_t    *cl_3dcam;
+extern    cvar_t    *cl_3dcam_angle;
+extern    cvar_t    *cl_3dcam_chase;
+extern    cvar_t    *cl_3dcam_dist;
+extern    cvar_t    *cl_3dcam_alpha;
+extern    cvar_t    *cl_3dcam_adjust;
 
-extern	cvar_t	*cl_blood;
+extern    cvar_t    *cl_blood;
 
 #endif
 
-extern	cvar_t	*cl_upspeed;
-extern	cvar_t	*cl_forwardspeed;
-extern	cvar_t	*cl_sidespeed;
+extern    cvar_t    *cl_upspeed;
+extern    cvar_t    *cl_forwardspeed;
+extern    cvar_t    *cl_sidespeed;
 
-extern	cvar_t	*cl_yawspeed;
-extern	cvar_t	*cl_pitchspeed;
+extern    cvar_t    *cl_yawspeed;
+extern    cvar_t    *cl_pitchspeed;
 
-extern	cvar_t	*cl_run;
+extern    cvar_t    *cl_run;
 
-extern	cvar_t	*cl_anglespeedkey;
+extern    cvar_t    *cl_anglespeedkey;
 
-extern	cvar_t	*cl_shownet;
-extern	cvar_t	*cl_showmiss;
-extern	cvar_t	*cl_showclamp;
+extern    cvar_t    *cl_shownet;
+extern    cvar_t    *cl_showmiss;
+extern    cvar_t    *cl_showclamp;
 
-extern	cvar_t	*lookspring;
-extern	cvar_t	*lookstrafe;
-extern	cvar_t	*sensitivity;
+extern    cvar_t    *lookspring;
+extern    cvar_t    *lookstrafe;
+extern    cvar_t    *sensitivity;
 
-extern	cvar_t	*m_pitch;
-extern	cvar_t	*m_yaw;
-extern	cvar_t	*m_forward;
-extern	cvar_t	*m_side;
+extern    cvar_t    *m_pitch;
+extern    cvar_t    *m_yaw;
+extern    cvar_t    *m_forward;
+extern    cvar_t    *m_side;
 
-extern	cvar_t	*freelook;
+extern    cvar_t    *freelook;
 
-extern	cvar_t	*cl_lightlevel;	// FIXME HACK
+extern    cvar_t    *cl_lightlevel;    // FIXME HACK
 
-extern	cvar_t	*cl_paused;
-extern	cvar_t	*cl_timedemo;
+extern    cvar_t    *cl_paused;
+extern    cvar_t    *cl_timedemo;
 
-extern	cvar_t	*cl_vwep;
+extern    cvar_t    *cl_vwep;
 
 typedef struct
 {
-	int		key;				// so entities can reuse same entry
-	vec3_t	color;
-	vec3_t	origin;
-	float	radius;
-	float	die;				// stop lighting after this time
-	float	decay;				// drop this each second
-	float	minlight;			// don't add when contributing less
+    int        key;                // so entities can reuse same entry
+    vec3_t    color;
+    vec3_t    origin;
+    float    radius;
+    float    die;                // stop lighting after this time
+    float    decay;                // drop this each second
+    float    minlight;            // don't add when contributing less
 } cdlight_t;
 
-extern	centity_t	cl_entities[MAX_EDICTS];
-extern	cdlight_t	cl_dlights[MAX_DLIGHTS];
+extern    centity_t    cl_entities[MAX_EDICTS];
+extern    cdlight_t    cl_dlights[MAX_DLIGHTS];
 
 // the cl_parse_entities must be large enough to hold UPDATE_BACKUP frames of
 // entities, so that when a delta compressed message arives from the server
 // it can be un-deltad from the original 
-#define	MAX_PARSE_ENTITIES	1024
-extern	entity_state_t	cl_parse_entities[MAX_PARSE_ENTITIES];
+#define    MAX_PARSE_ENTITIES    1024
+extern    entity_state_t    cl_parse_entities[MAX_PARSE_ENTITIES];
 
 //=============================================================================
 
-extern	netadr_t	net_from;
-extern	sizebuf_t	net_message;
+extern    netadr_t    net_from;
+extern    sizebuf_t    net_message;
 
 void DrawString (int x, int y, char *s);
-void DrawAltString (int x, int y, char *s);	// toggle high bit
-qboolean	CL_CheckOrDownloadFile (char *filename);
+void DrawAltString (int x, int y, char *s);    // toggle high bit
+qboolean    CL_CheckOrDownloadFile (char *filename);
 
 void CL_AddNetgraph (void);
 
 //ROGUE
 typedef struct cl_sustain
 {
-	int			id;
-	int			type;
-	int			endtime;
-	int			nextthink;
-	int			thinkinterval;
-	vec3_t		org;
-	vec3_t		dir;
-	int			color;
-	int			count;
-	int			magnitude;
-	void		(*think)(struct cl_sustain *self);
+    int            id;
+    int            type;
+    int            endtime;
+    int            nextthink;
+    int            thinkinterval;
+    vec3_t        org;
+    vec3_t        dir;
+    int            color;
+    int            count;
+    int            magnitude;
+    void        (*think)(struct cl_sustain *self);
 } cl_sustain_t;
 
-#define MAX_SUSTAINS		32
+#define MAX_SUSTAINS        32
 void CL_ParticleSteamEffect2(cl_sustain_t *self);
 
 void CL_TeleporterParticles (entity_state_t *ent);
@@ -395,11 +395,11 @@ void CL_ParticleEffect3 (vec3_t org, vec3_t dir, int color, int count);
 
 typedef struct
 {
-	qboolean	isactive;
+    qboolean    isactive;
 
-	vec3_t		lightcol;
-	float		light;
-	float		lightvel;
+    vec3_t        lightcol;
+    float        light;
+    float        lightvel;
 } cplight_t;
 #define P_LIGHTS_MAX 8
 #endif
@@ -408,52 +408,52 @@ typedef struct
 // PGM
 typedef struct particle_s
 {
-	struct particle_s	*next;
+    struct particle_s    *next;
 
-	float		time;
+    float        time;
 
-	vec3_t		org;
-	vec3_t		vel;
-	vec3_t		accel;
+    vec3_t        org;
+    vec3_t        vel;
+    vec3_t        accel;
 #ifdef QMAX
   vec3_t color;
   vec3_t colorvel;
 #else
-  float		color;
-  float		colorvel;
+  float        color;
+  float        colorvel;
 #endif
-	float		alpha;
-	float		alphavel;
+    float        alpha;
+    float        alphavel;
 
 #ifdef QMAX
-	cplight_t	lights[P_LIGHTS_MAX];
+    cplight_t    lights[P_LIGHTS_MAX];
 
-	float		start;
-	float		size;
-	float		sizevel;
+    float        start;
+    float        size;
+    float        sizevel;
 
-	vec3_t		angle;
-	
-	int			image;
-	int			flags;
+    vec3_t        angle;
+    
+    int            image;
+    int            flags;
 
-	vec3_t		oldorg;
-	float		temp;
-	int			src_ent;
-	int			dst_ent;
+    vec3_t        oldorg;
+    float        temp;
+    int            src_ent;
+    int            dst_ent;
 
-	struct particle_s	*link;
+    struct particle_s    *link;
 
-  void		(*think)(struct particle_s *p, vec3_t org, vec3_t angle, float *alpha, float *size, int *image, float *time);
-  qboolean	thinknext;
+  void        (*think)(struct particle_s *p, vec3_t org, vec3_t angle, float *alpha, float *size, int *image, float *time);
+  qboolean    thinknext;
 #endif
 } cparticle_t;
 
 
-#define	PARTICLE_GRAVITY	40
-#define BLASTER_PARTICLE_COLOR		0xe0
+#define    PARTICLE_GRAVITY    40
+#define BLASTER_PARTICLE_COLOR        0xe0
 // PMM
-#define INSTANT_PARTICLE	-10000.0
+#define INSTANT_PARTICLE    -10000.0
 // PGM
 // ========
 
@@ -535,7 +535,7 @@ void CL_ParseLayout (void);
 //
 // cl_main
 //
-extern	refexport_t	re;		// interface to refresh .dll
+extern    refexport_t    re;        // interface to refresh .dll
 
 void CL_Init (void);
 
@@ -552,15 +552,15 @@ void CL_RequestNextDownload (void);
 //
 typedef struct
 {
-	int			down[2];		// key nums holding it down
-	unsigned	downtime;		// msec timestamp
-	unsigned	msec;			// msec down this frame
-	int			state;
+    int            down[2];        // key nums holding it down
+    unsigned    downtime;        // msec timestamp
+    unsigned    msec;            // msec down this frame
+    int            state;
 } kbutton_t;
 
-extern	kbutton_t	in_mlook, in_klook;
-extern 	kbutton_t 	in_strafe;
-extern 	kbutton_t 	in_speed;
+extern    kbutton_t    in_mlook, in_klook;
+extern     kbutton_t     in_strafe;
+extern     kbutton_t     in_speed;
 
 void CL_InitInput (void);
 void CL_SendCmd (void);
@@ -589,7 +589,7 @@ void CL_Record_f (void);
 //
 // cl_parse.c
 //
-extern	char *svc_strings[256];
+extern    char *svc_strings[256];
 
 void CL_ParseServerMessage (void);
 void CL_LoadClientinfo (clientinfo_t *ci, char *s);
@@ -600,8 +600,8 @@ void CL_Download_f (void);
 //
 // cl_view.c
 //
-extern	int			gun_frame;
-extern	struct model_s	*gun_model;
+extern    int            gun_frame;
+extern    struct model_s    *gun_model;
 
 void V_Init (void);
 void V_RenderView( float stereo_separation );

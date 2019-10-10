@@ -49,10 +49,10 @@ void Con_Print (char *text)
 
 void Cmd_ForwardToServer (void)
 {
-	char *cmd;
+    char *cmd;
 
-	cmd = Cmd_Argv(0);
-	Com_Printf ("Unknown command \"%s\"\n", cmd);
+    cmd = Cmd_Argv(0);
+    Com_Printf ("Unknown command \"%s\"\n", cmd);
 }
 
 void SCR_DebugGraph (float value, int color)
@@ -69,6 +69,6 @@ void SCR_EndLoadingPlaque (void)
 
 void Key_Init (void)
 {
-	Cmd_AddCommand ("bind", Key_Bind_Null_f);
+    Cmd_AddCommand ("bind", Key_Bind_Null_f);
 }
 

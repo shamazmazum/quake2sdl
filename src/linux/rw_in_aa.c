@@ -66,58 +66,58 @@ Key_Event_fp_t Key_Event_fp;
 
 void KBD_Init(Key_Event_fp_t fp)
 {
-	Key_Event_fp = fp;
-	if (!aac)
-		Sys_Error("aac is NULL\n");
+    Key_Event_fp = fp;
+    if (!aac)
+        Sys_Error("aac is NULL\n");
 
-	if (!aa_autoinitkbd(aac, AA_SENDRELEASE))
-		Sys_Error("aa_autoinitkbd() failed\n");
+    if (!aa_autoinitkbd(aac, AA_SENDRELEASE))
+        Sys_Error("aa_autoinitkbd() failed\n");
 }
 
 void KBD_Update(void)
 {
-	int ev;
-	int down;
-	
-	while (ev = aa_getevent(aac, 0)) {
-		down = 1;
+    int ev;
+    int down;
+    
+    while (ev = aa_getevent(aac, 0)) {
+        down = 1;
 release:
-		switch (ev) {
-			case AA_UP:
-				Key_Event_fp(K_UPARROW, down);
-				break;
-			case AA_DOWN:
-				Key_Event_fp(K_DOWNARROW, down);
-				break;
-			case AA_LEFT:
-				Key_Event_fp(K_LEFTARROW, down);
-				break;
-			case AA_RIGHT:
-				Key_Event_fp(K_RIGHTARROW, down);
-				break;
-			case AA_BACKSPACE:
-				Key_Event_fp(K_BACKSPACE, down);
-				break;
-			case AA_ESC:
-				Key_Event_fp(K_ESCAPE, down);
-				break;
-		}
-		if (ev < 256) {
-			Key_Event_fp(ev, down);
-		} else if (ev > AA_RELEASE) {
-			ev &= ~AA_RELEASE;
-			down = 0;
-			goto release;
-		}
-	}
+        switch (ev) {
+            case AA_UP:
+                Key_Event_fp(K_UPARROW, down);
+                break;
+            case AA_DOWN:
+                Key_Event_fp(K_DOWNARROW, down);
+                break;
+            case AA_LEFT:
+                Key_Event_fp(K_LEFTARROW, down);
+                break;
+            case AA_RIGHT:
+                Key_Event_fp(K_RIGHTARROW, down);
+                break;
+            case AA_BACKSPACE:
+                Key_Event_fp(K_BACKSPACE, down);
+                break;
+            case AA_ESC:
+                Key_Event_fp(K_ESCAPE, down);
+                break;
+        }
+        if (ev < 256) {
+            Key_Event_fp(ev, down);
+        } else if (ev > AA_RELEASE) {
+            ev &= ~AA_RELEASE;
+            down = 0;
+            goto release;
+        }
+    }
 }
 
 void KBD_Close(void)
 {
-	if (!aac)
-		Sys_Error("aac is NULL\n");
+    if (!aac)
+        Sys_Error("aac is NULL\n");
 
-	aa_uninitkbd(aac);
+    aa_uninitkbd(aac);
 }
 
 /*****************************************************************************/

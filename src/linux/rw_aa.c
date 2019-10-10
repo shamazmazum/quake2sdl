@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  * Changelog:
  *
- * 	2001-12-30	0.1	Initial release
+ *     2001-12-30    0.1    Initial release
  *
  */
 
@@ -156,40 +156,40 @@ int SWimp_Init( void *hInstance, void *wndProc )
 */
 static qboolean SWimp_InitGraphics( qboolean fullscreen )
 {
-	SWimp_Shutdown();
+    SWimp_Shutdown();
 
-	// let the sound and input subsystems know about the new window
-	ri.Vid_NewWindow (vid.width, vid.height);
+    // let the sound and input subsystems know about the new window
+    ri.Vid_NewWindow (vid.width, vid.height);
 
-//	Cvar_SetValue ("vid_mode", (float)modenum);
-	
-	vid.rowbytes = vid.width;
+//    Cvar_SetValue ("vid_mode", (float)modenum);
+    
+    vid.rowbytes = vid.width;
 
 // get goin'
-	aa_parseoptions(NULL, NULL, NULL, NULL);
-	aa_defparams.supported = (AA_DIM_MASK | AA_BOLD_MASK | AA_NORMAL_MASK
-				  | AA_EXTENDED);
-	aac = aa_autoinit(&aa_defparams);
-	aa_defrenderparams.bright=10;
-	aa_defrenderparams.dither = AA_FLOYD_S;
-	aa_defparams.dimmul = 2.5;
-	aa_defparams.boldmul = 2.5;
-	if (!aac)
-		Sys_Error("aa_autoinit() failed\n");
+    aa_parseoptions(NULL, NULL, NULL, NULL);
+    aa_defparams.supported = (AA_DIM_MASK | AA_BOLD_MASK | AA_NORMAL_MASK
+                  | AA_EXTENDED);
+    aac = aa_autoinit(&aa_defparams);
+    aa_defrenderparams.bright=10;
+    aa_defrenderparams.dither = AA_FLOYD_S;
+    aa_defparams.dimmul = 2.5;
+    aa_defparams.boldmul = 2.5;
+    if (!aac)
+        Sys_Error("aa_autoinit() failed\n");
 
-	if (!aa_image(aac))
-		Sys_Error("This mode isn't hapnin'\n");
+    if (!aa_image(aac))
+        Sys_Error("This mode isn't hapnin'\n");
 
-	ri.Con_Printf (PRINT_ALL, "AA driver: %s\n", aac->driver->name);
-	ri.Con_Printf (PRINT_ALL, "AA resolution: %d %d\n", aa_imgwidth(aac), aa_imgheight(aac));
+    ri.Con_Printf (PRINT_ALL, "AA driver: %s\n", aac->driver->name);
+    ri.Con_Printf (PRINT_ALL, "AA resolution: %d %d\n", aa_imgwidth(aac), aa_imgheight(aac));
 
-	vid.buffer = malloc(vid.rowbytes * vid.height);
-	if (!vid.buffer)
-		Sys_Error("Unabled to alloc vid.buffer!\n");
+    vid.buffer = malloc(vid.rowbytes * vid.height);
+    if (!vid.buffer)
+        Sys_Error("Unabled to alloc vid.buffer!\n");
 
-	aa_resizehandler(aac, (void *) aa_resize);
+    aa_resizehandler(aac, (void *) aa_resize);
 
-	return true;
+    return true;
 }
 
 /*
@@ -201,9 +201,9 @@ static qboolean SWimp_InitGraphics( qboolean fullscreen )
 */
 void SWimp_EndFrame (void)
 {
-	fastscale(vid.buffer, aa_image(aac), vid.width, aa_imgwidth(aac), vid.height, aa_imgheight(aac));
-	aa_renderpalette(aac, mypalette, &aa_defrenderparams, 0, 0, aa_scrwidth (aac), aa_scrheight (aac));
-	aa_flush(aac);
+    fastscale(vid.buffer, aa_image(aac), vid.width, aa_imgwidth(aac), vid.height, aa_imgheight(aac));
+    aa_renderpalette(aac, mypalette, &aa_defrenderparams, 0, 0, aa_scrwidth (aac), aa_scrheight (aac));
+    aa_flush(aac);
 }
 
 /*
@@ -211,26 +211,26 @@ void SWimp_EndFrame (void)
 */
 rserr_t SWimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen )
 {
-	rserr_t retval = rserr_ok;
+    rserr_t retval = rserr_ok;
 
-	ri.Con_Printf (PRINT_ALL, "setting mode %d:", mode );
+    ri.Con_Printf (PRINT_ALL, "setting mode %d:", mode );
 
-	if ( !ri.Vid_GetModeInfo( pwidth, pheight, mode ) )
-	{
-		ri.Con_Printf( PRINT_ALL, " invalid mode\n" );
-		return rserr_invalid_mode;
-	}
+    if ( !ri.Vid_GetModeInfo( pwidth, pheight, mode ) )
+    {
+        ri.Con_Printf( PRINT_ALL, " invalid mode\n" );
+        return rserr_invalid_mode;
+    }
 
-	ri.Con_Printf( PRINT_ALL, " %d %d\n", *pwidth, *pheight);
+    ri.Con_Printf( PRINT_ALL, " %d %d\n", *pwidth, *pheight);
 
-	if ( !SWimp_InitGraphics( false ) ) {
-		// failed to set a valid mode in windowed mode
-		return rserr_invalid_mode;
-	}
+    if ( !SWimp_InitGraphics( false ) ) {
+        // failed to set a valid mode in windowed mode
+        return rserr_invalid_mode;
+    }
 
-	R_GammaCorrectAndSetPalette( ( const unsigned char * ) d_8to24table );
+    R_GammaCorrectAndSetPalette( ( const unsigned char * ) d_8to24table );
 
-	return retval;
+    return retval;
 }
 
 /*
@@ -242,18 +242,18 @@ rserr_t SWimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen 
 */
 void SWimp_SetPalette( const unsigned char *palette )
 {
-	const unsigned char *pal;
-	int i;
+    const unsigned char *pal;
+    int i;
 
     if ( !palette )
         palette = ( const unsigned char * ) sw_state.currentpalette;
 
-	pal = palette;
+    pal = palette;
  
-	for (i=0 ; i < 256 ; i++, pal += 4) {
-//		aa_setpalette(mypalette, i, pal[0] >> 2, pal[1] >> 2, pal[2] >> 2);
-		aa_setpalette(mypalette, i, pal[0], pal[1], pal[2]);
-	}
+    for (i=0 ; i < 256 ; i++, pal += 4) {
+//        aa_setpalette(mypalette, i, pal[0] >> 2, pal[1] >> 2, pal[2] >> 2);
+        aa_setpalette(mypalette, i, pal[0], pal[1], pal[2]);
+    }
 }
 
 /*
@@ -264,14 +264,14 @@ void SWimp_SetPalette( const unsigned char *palette )
 */
 void SWimp_Shutdown( void )
 {
-	if (vid.buffer) {
-		free(vid.buffer);
-		vid.buffer = NULL;
-	}
+    if (vid.buffer) {
+        free(vid.buffer);
+        vid.buffer = NULL;
+    }
 
-	if (aac)
-		aa_close(aac);
-	aac = NULL;
+    if (aac)
+        aa_close(aac);
+    aac = NULL;
 }
 
 /*
@@ -291,19 +291,19 @@ Sys_MakeCodeWriteable
 void Sys_MakeCodeWriteable (unsigned long startaddr, unsigned long length)
 {
 
-	int r;
-	unsigned long addr;
-	int psize = getpagesize();
+    int r;
+    unsigned long addr;
+    int psize = getpagesize();
 
-	addr = (startaddr & ~(psize-1)) - psize;
+    addr = (startaddr & ~(psize-1)) - psize;
 
-//	fprintf(stderr, "writable code %lx(%lx)-%lx, length=%lx\n", startaddr,
-//			addr, startaddr+length, length);
+//    fprintf(stderr, "writable code %lx(%lx)-%lx, length=%lx\n", startaddr,
+//            addr, startaddr+length, length);
 
-	r = mprotect((char*)addr, length + startaddr - addr + psize, 7);
+    r = mprotect((char*)addr, length + startaddr - addr + psize, 7);
 
-	if (r < 0)
-    		Sys_Error("Protection change failed\n");
+    if (r < 0)
+            Sys_Error("Protection change failed\n");
 }
 
 /*
