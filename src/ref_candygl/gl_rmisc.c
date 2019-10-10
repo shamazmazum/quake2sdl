@@ -58,18 +58,17 @@ void LoadTGA ( char *name, byte **pic, int *width, int *height );
 //faster if scaled i guess :p
 image_t *LoadPartImg (char *name, float scale)
 {
-    byte    *pic;
+    byte    *pic, *palette;
     int width, height, sHeight, sWidth, len=strlen(name);
-    void (*PicLoad) ( char *name, byte **pic, int *width, int *height );
 
     if (!strcmp(name+len-4, ".jpg"))
-        PicLoad = LoadJPG;
+        LoadJPG (name, &pic, &width, &height);
     else if (!strcmp(name+len-4, ".tga"))
-        PicLoad = LoadTGA;
-    else if (!strcmp(name+len-4, ".pcx")) //just in case someone wants old style pics :/
-        PicLoad = LoadPCX;
-
-    PicLoad (name, &pic, &width, &height);
+        LoadTGA (name, &pic, &width, &height);
+    else if (!strcmp(name+len-4, ".pcx")) { //just in case someone wants old style pics :/
+        LoadPCX (name, &pic, &palette, &width, &height);
+        free (palette);
+    }
 
     if (!pic)
     {
