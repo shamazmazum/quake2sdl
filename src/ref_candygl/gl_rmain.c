@@ -735,7 +735,7 @@ void GL_DrawParticles( int num_particles, qboolean inWater )
 					qglVertex3fv (p->origin);
 					qglColor4ub( 0, 0, 0, 0);
 
-					for (angle=magicnumber*fabs(1-MAGICNUMBER) ; angle>=0 ; angle-=magicnumber)
+					for (angle=magicnumber*abs(1-MAGICNUMBER) ; angle>=0 ; angle-=magicnumber)
 					{
 						v[0]=p->origin[0] - p->angle[0]*size + (right[0]*cos(angle) + up[0]*sin(angle));
 						v[1]=p->origin[1] - p->angle[1]*size + (right[1]*cos(angle) + up[1]*sin(angle));

@@ -1648,6 +1648,9 @@ void pExplosionThink (cparticle_t *p, vec3_t org, vec3_t angle, float *alpha, fl
 void CL_Explosion_Particle (vec3_t org, float size, qboolean large, qboolean rocket)
 {
     cparticle_t *p;
+    float psize = size;
+    if (psize == 0)
+        psize = 150 - ((rocket)? 0: 75);
 
 	if (large)
 	{	
@@ -1671,7 +1674,7 @@ void CL_Explosion_Particle (vec3_t org, float size, qboolean large, qboolean roc
 					255,	255,	255,
 					0,		0,		0,
 					1,		(0.5+random()*0.5) * (rocket)? -2 : -1.5,
-					(size!=0)?size:(150-(!rocket)?75:0),	0,			
+                    psize, 0,
 					particle_rexplosion1, //whatever :p
 					PART_DEPTHHACK_SHORT,
 					pExplosionThink, true);
@@ -3393,8 +3396,8 @@ void CL_TrapParticles (entity_t *ent)
 	vec3_t		move;
 	vec3_t		vec;
 	vec3_t		start, end;
-	float		len;
-	int			dec, index;
+	float		len, dec;
+	int			index;
 
 	ent->origin[2]-=14;
 	VectorCopy (ent->origin, start);

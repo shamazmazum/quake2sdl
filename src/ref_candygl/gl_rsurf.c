@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // GL_RSURF.C: surface-related refresh code
 #include <assert.h>
+#include <ctype.h>
 
 #include "gl_local.h"
 
@@ -525,7 +526,7 @@ void R_RenderBrushPoly (msurface_t *fa)
 	}
 
 	// dynamic this frame or dynamic previously
-	if ( ( fa->dlightframe == r_framecount ) )
+	if ( fa->dlightframe == r_framecount )
 	{
 dynamic:
 		if ( gl_dynamic->value )
@@ -747,7 +748,7 @@ static void GL_RenderLightmappedPoly( msurface_t *surf )
 	}
 
 	// dynamic this frame or dynamic previously
-	if ( ( surf->dlightframe == r_framecount ) )
+	if ( surf->dlightframe == r_framecount )
 	{
 dynamic:
 		if ( gl_dynamic->value )
