@@ -1,3 +1,5 @@
+#ifndef __GL_LOCAL__
+#define __GL_LOCAL__
 /*
 Copyright (C) 1997-2001 Id Software, Inc.
 
@@ -470,7 +472,6 @@ typedef struct
     const char *renderer_string;
     const char *vendor_string;
     const char *version_string;
-    const char *extensions_string;
 
     qboolean    allow_cds;
 
@@ -578,4 +579,6 @@ int         GLimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscr
 void        GLimp_AppActivate( qboolean active );
 void        GLimp_EnableLogging( qboolean enable );
 void        GLimp_LogNewFrame( void );
+int         GLimp_QueryExtension (const char *extension);
 
+#endif

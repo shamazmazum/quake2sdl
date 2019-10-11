@@ -167,7 +167,13 @@ void GL_Strings_f( void )
     ri.Con_Printf (PRINT_ALL, "GL_VENDOR: %s\n", gl_config.vendor_string );
     ri.Con_Printf (PRINT_ALL, "GL_RENDERER: %s\n", gl_config.renderer_string );
     ri.Con_Printf (PRINT_ALL, "GL_VERSION: %s\n", gl_config.version_string );
-    ri.Con_Printf (PRINT_ALL, "GL_EXTENSIONS: %s\n", gl_config.extensions_string );
+
+    int num_ext, ext;
+    glGetIntegerv (GL_NUM_EXTENSIONS, &num_ext);
+    ri.Con_Printf (PRINT_ALL, "GL_EXTENSIONS: ");
+    for (ext = 0; ext < num_ext; ext++)
+        ri.Con_Printf (PRINT_ALL, "%s ", qglGetStringi (GL_EXTENSIONS, ext));
+    ri.Con_Printf (PRINT_ALL, "\n");
 }
 
 /*

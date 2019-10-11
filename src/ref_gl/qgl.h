@@ -158,6 +158,7 @@ extern  void ( APIENTRY * qglGetPixelMapusv )(GLenum map, GLushort *values);
 extern  void ( APIENTRY * qglGetPointerv )(GLenum pname, GLvoid* *params);
 extern  void ( APIENTRY * qglGetPolygonStipple )(GLubyte *mask);
 extern  const GLubyte * ( APIENTRY * qglGetString )(GLenum name);
+extern  const GLubyte * ( APIENTRY * qglGetStringi )(GLenum name, GLuint index);
 extern  void ( APIENTRY * qglGetTexEnvfv )(GLenum target, GLenum pname, GLfloat *params);
 extern  void ( APIENTRY * qglGetTexEnviv )(GLenum target, GLenum pname, GLint *params);
 extern  void ( APIENTRY * qglGetTexGendv )(GLenum coord, GLenum pname, GLdouble *params);

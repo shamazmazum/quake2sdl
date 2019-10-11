@@ -407,7 +407,6 @@ typedef struct
     const char *renderer_string;
     const char *vendor_string;
     const char *version_string;
-    const char *extensions_string;
 
     qboolean    allow_cds;
 } glconfig_t;
@@ -466,5 +465,6 @@ int         GLimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscr
 void        GLimp_AppActivate( qboolean active );
 void        GLimp_EnableLogging( qboolean enable );
 void        GLimp_LogNewFrame( void );
+int         GLimp_QueryExtension (const char *extension);
 
 #endif

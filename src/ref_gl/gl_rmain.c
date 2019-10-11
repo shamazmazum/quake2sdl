@@ -1168,13 +1168,9 @@ int R_Init( void *hinstance, void *hWnd )
     ** get our various GL strings
     */
     gl_config.vendor_string = (char *)qglGetString (GL_VENDOR);
-    ri.Con_Printf (PRINT_ALL, "GL_VENDOR: %s\n", gl_config.vendor_string );
     gl_config.renderer_string = (char *)qglGetString (GL_RENDERER);
-    ri.Con_Printf (PRINT_ALL, "GL_RENDERER: %s\n", gl_config.renderer_string );
     gl_config.version_string = (char *)qglGetString (GL_VERSION);
-    ri.Con_Printf (PRINT_ALL, "GL_VERSION: %s\n", gl_config.version_string );
-    gl_config.extensions_string = (char *)qglGetString (GL_EXTENSIONS);
-    ri.Con_Printf (PRINT_ALL, "GL_EXTENSIONS: %s\n", gl_config.extensions_string );
+    GL_Strings_f ();
 
     strncpy( renderer_buffer, gl_config.renderer_string, sizeof(renderer_buffer) );
     renderer_buffer[sizeof(renderer_buffer)-1] = 0;
@@ -1267,8 +1263,8 @@ int R_Init( void *hinstance, void *hWnd )
     /*
     ** grab extensions
     */
-    if ( strstr( gl_config.extensions_string, "GL_EXT_compiled_vertex_array" ) || 
-         strstr( gl_config.extensions_string, "GL_SGI_compiled_vertex_array" ) )
+    if ( GLimp_QueryExtension ("GL_EXT_compiled_vertex_array") || 
+         GLimp_QueryExtension ( "GL_SGI_compiled_vertex_array" ) )
     {
         ri.Con_Printf( PRINT_ALL, "...enabling GL_EXT_compiled_vertex_array\n" );
         qglLockArraysEXT = ( void * ) qwglGetProcAddress( "glLockArraysEXT" );
@@ -1280,7 +1276,7 @@ int R_Init( void *hinstance, void *hWnd )
     }
 
 #ifdef _WIN32
-    if ( strstr( gl_config.extensions_string, "WGL_EXT_swap_control" ) )
+    if ( GLimp_QueryExtension ( "WGL_EXT_swap_control" ) )
     {
         qwglSwapIntervalEXT = ( BOOL (WINAPI *)(int)) qwglGetProcAddress( "wglSwapIntervalEXT" );
         ri.Con_Printf( PRINT_ALL, "...enabling WGL_EXT_swap_control\n" );
@@ -1291,7 +1287,7 @@ int R_Init( void *hinstance, void *hWnd )
     }
 #endif
 
-    if ( strstr( gl_config.extensions_string, "GL_EXT_point_parameters" ) )
+    if ( GLimp_QueryExtension ( "GL_EXT_point_parameters" ) )
     {
         if ( gl_ext_pointparameters->value )
         {
@@ -1310,7 +1306,7 @@ int R_Init( void *hinstance, void *hWnd )
     }
 
 #ifdef __linux__
-    if ( strstr( gl_config.extensions_string, "3DFX_set_global_palette" ))
+    if ( GLimp_QueryExtension ( "3DFX_set_global_palette" ))
     {
         if ( gl_ext_palettedtexture->value )
         {
@@ -1330,8 +1326,8 @@ int R_Init( void *hinstance, void *hWnd )
 #endif
 
     if ( !qglColorTableEXT &&
-        strstr( gl_config.extensions_string, "GL_EXT_paletted_texture" ) && 
-        strstr( gl_config.extensions_string, "GL_EXT_shared_texture_palette" ) )
+         GLimp_QueryExtension ( "GL_EXT_paletted_texture" ) && 
+         GLimp_QueryExtension ( "GL_EXT_shared_texture_palette" ) )
     {
         if ( gl_ext_palettedtexture->value )
         {
@@ -1348,7 +1344,7 @@ int R_Init( void *hinstance, void *hWnd )
         ri.Con_Printf( PRINT_ALL, "...GL_EXT_shared_texture_palette not found\n" );
     }
 
-    if ( strstr( gl_config.extensions_string, "GL_ARB_multitexture" ) )
+    if ( GLimp_QueryExtension ( "GL_ARB_multitexture" ) )
     {
         if ( gl_ext_multitexture->value )
         {
@@ -1369,7 +1365,7 @@ int R_Init( void *hinstance, void *hWnd )
         ri.Con_Printf( PRINT_ALL, "...GL_ARB_multitexture not found\n" );
     }
 
-    if ( strstr( gl_config.extensions_string, "GL_SGIS_multitexture" ) )
+    if ( GLimp_QueryExtension ( "GL_SGIS_multitexture" ) )
     {
         if ( qglActiveTextureARB )
         {

@@ -151,6 +151,7 @@ void ( APIENTRY * qglGetPixelMapusv )(GLenum map, GLushort *values);
 void ( APIENTRY * qglGetPointerv )(GLenum pname, GLvoid* *params);
 void ( APIENTRY * qglGetPolygonStipple )(GLubyte *mask);
 const GLubyte * ( APIENTRY * qglGetString )(GLenum name);
+const GLubyte * ( APIENTRY * qglGetStringi )(GLenum name, GLuint index);
 void ( APIENTRY * qglGetTexEnvfv )(GLenum target, GLenum pname, GLfloat *params);
 void ( APIENTRY * qglGetTexEnviv )(GLenum target, GLenum pname, GLint *params);
 void ( APIENTRY * qglGetTexGendv )(GLenum coord, GLenum pname, GLdouble *params);
@@ -501,6 +502,7 @@ static void ( APIENTRY * dllGetPixelMapusv )(GLenum map, GLushort *values);
 static void ( APIENTRY * dllGetPointerv )(GLenum pname, GLvoid* *params);
 static void ( APIENTRY * dllGetPolygonStipple )(GLubyte *mask);
 const GLubyte * ( APIENTRY * dllGetString )(GLenum name);
+const GLubyte * ( APIENTRY * dllGetStringi )(GLenum name, GLuint index);
 static void ( APIENTRY * dllGetTexEnvfv )(GLenum target, GLenum pname, GLfloat *params);
 static void ( APIENTRY * dllGetTexEnviv )(GLenum target, GLenum pname, GLint *params);
 static void ( APIENTRY * dllGetTexGendv )(GLenum coord, GLenum pname, GLdouble *params);
@@ -1406,6 +1408,12 @@ static const GLubyte * APIENTRY logGetString(GLenum name)
 {
     SIG( "glGetString" );
     return dllGetString( name );
+}
+
+static const GLubyte * APIENTRY logGetStringi(GLenum name, GLuint index)
+{
+    SIG( "glGetStringi" );
+    return dllGetStringi( name, index );
 }
 
 static void APIENTRY logGetTexEnvfv(GLenum target, GLenum pname, GLfloat *params)
@@ -2740,6 +2748,7 @@ void QGL_Shutdown( void )
     qglGetPointerv               = NULL;
     qglGetPolygonStipple         = NULL;
     qglGetString                 = NULL;
+    qglGetStringi                = NULL;
     qglGetTexEnvfv               = NULL;
     qglGetTexEnviv               = NULL;
     qglGetTexGendv               = NULL;
@@ -3146,6 +3155,7 @@ qboolean QGL_Init( const char *dllname )
     qglGetPointerv               =     dllGetPointerv               = GPA( "glGetPointerv" );
     qglGetPolygonStipple         =     dllGetPolygonStipple         = GPA( "glGetPolygonStipple" );
     qglGetString                 =     dllGetString                 = GPA( "glGetString" );
+    qglGetStringi                =     dllGetStringi                = GPA( "glGetStringi" );
     qglGetTexEnvfv               =     dllGetTexEnvfv               = GPA( "glGetTexEnvfv" );
     qglGetTexEnviv               =     dllGetTexEnviv               = GPA( "glGetTexEnviv" );
     qglGetTexGendv               =     dllGetTexGendv               = GPA( "glGetTexGendv" );
@@ -3518,6 +3528,7 @@ void GLimp_EnableLogging( qboolean enable )
         qglGetPointerv               =     logGetPointerv               ;
         qglGetPolygonStipple         =     logGetPolygonStipple         ;
         qglGetString                 =     logGetString                 ;
+        qglGetStringi                =     logGetStringi                ;
         qglGetTexEnvfv               =     logGetTexEnvfv               ;
         qglGetTexEnviv               =     logGetTexEnviv               ;
         qglGetTexGendv               =     logGetTexGendv               ;
@@ -3857,6 +3868,7 @@ void GLimp_EnableLogging( qboolean enable )
         qglGetPointerv               =     dllGetPointerv               ;
         qglGetPolygonStipple         =     dllGetPolygonStipple         ;
         qglGetString                 =     dllGetString                 ;
+        qglGetStringi                =     dllGetStringi                ;
         qglGetTexEnvfv               =     dllGetTexEnvfv               ;
         qglGetTexEnviv               =     dllGetTexEnviv               ;
         qglGetTexGendv               =     dllGetTexGendv               ;
@@ -4083,5 +4095,3 @@ void GLimp_LogNewFrame( void )
 {
     fprintf( glw_state.log_fp, "*** R_BeginFrame ***\n" );
 }
-
-

@@ -3,7 +3,7 @@ set (quake_resource_datadir ${CMAKE_INSTALL_PREFIX}/share/quake2)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/q_resources.h.in ${CMAKE_CURRENT_BINARY_DIR}/q_resources.h)
 
 add_definitions (-DHAVE_IPV6 -DHAVE_SIN6_LEN -DLINUX_VERSION="1")
-include_directories (${SDL_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+include_directories (${SDL2_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${OPENGL_INCLUDE_DIR})
 
 if (WITH_RETEX)
   add_definitions (-DRETEX)
@@ -72,7 +72,7 @@ else (WITH_QMAX)
 endif (WITH_QMAX)
 
 add_executable (quake2 ${Q2_SOURCES})
-target_link_libraries (quake2 ${SDL_LIBRARY} pthread m)
+target_link_libraries (quake2 ${SDL2_LIBRARY} pthread m)
 
 add_library (ref-softsdl SHARED
   ref_soft/r_aclip.c
@@ -98,7 +98,7 @@ add_library (ref-softsdl SHARED
   linux/rw_linux.c
   linux/rw_sdl.c
   )
-target_link_libraries (ref-softsdl ${SDL_LIBRARY} pthread)
+target_link_libraries (ref-softsdl ${SDL2_LIBRARY} pthread)
 set_target_properties (ref-softsdl PROPERTIES OUTPUT_NAME ref_softsdl PREFIX "")
 
 if (WITH_QMAX)
@@ -125,7 +125,7 @@ add_library (ref-sdlgl SHARED
   linux/rw_linux.c
   linux/joystick.c
 )
-target_link_libraries (ref-sdlgl ${SDL_LIBRARY} pthread)
+target_link_libraries (ref-sdlgl ${SDL2_LIBRARY} pthread)
 if (WITH_QMAX)
   target_link_libraries (ref-sdlgl ${JPEG_LIBRARY})
 endif (WITH_QMAX)
@@ -133,7 +133,7 @@ target_compile_definitions (ref-sdlgl PRIVATE -DOPENGL)
 set_target_properties (ref-sdlgl PROPERTIES OUTPUT_NAME ref_sdlgl PREFIX "")
 
 add_library (game-base SHARED
-    game/g_ai.c
+  game/g_ai.c
   game/p_client.c
   game/g_chase.c
   game/g_cmds.c

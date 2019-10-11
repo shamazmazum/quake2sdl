@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
 #include <string.h>
 #include <sys/mman.h>
 
@@ -46,6 +47,9 @@ static qboolean                 X11_active = false;
 qboolean have_stencil = false;
 
 static SDL_Surface *surface;
+static SDL_Window *window;
+static SDL_Renderer *renderer;
+static SDL_GLContext glcontext;
 
 #ifndef OPENGL
 static unsigned int sdl_palettemode;
@@ -189,28 +193,28 @@ int XLateKey(unsigned int keysym)
   
   key = 0;
   switch(keysym) {
-  case SDLK_KP9:            key = K_KP_PGUP; break;
+  case SDLK_KP_9:            key = K_KP_PGUP; break;
   case SDLK_PAGEUP:        key = K_PGUP; break;
-    
-  case SDLK_KP3:            key = K_KP_PGDN; break;
+      
+  case SDLK_KP_3:            key = K_KP_PGDN; break;
   case SDLK_PAGEDOWN:        key = K_PGDN; break;
     
-  case SDLK_KP7:            key = K_KP_HOME; break;
+  case SDLK_KP_7:            key = K_KP_HOME; break;
   case SDLK_HOME:            key = K_HOME; break;
     
-  case SDLK_KP1:            key = K_KP_END; break;
+  case SDLK_KP_1:            key = K_KP_END; break;
   case SDLK_END:            key = K_END; break;
     
-  case SDLK_KP4:            key = K_KP_LEFTARROW; break;
+  case SDLK_KP_4:            key = K_KP_LEFTARROW; break;
   case SDLK_LEFT:            key = K_LEFTARROW; break;
     
-  case SDLK_KP6:            key = K_KP_RIGHTARROW; break;
+  case SDLK_KP_6:            key = K_KP_RIGHTARROW; break;
   case SDLK_RIGHT:        key = K_RIGHTARROW; break;
     
-  case SDLK_KP2:            key = K_KP_DOWNARROW; break;
+  case SDLK_KP_2:            key = K_KP_DOWNARROW; break;
   case SDLK_DOWN:            key = K_DOWNARROW; break;
     
-  case SDLK_KP8:            key = K_KP_UPARROW; break;
+  case SDLK_KP_8:            key = K_KP_UPARROW; break;
   case SDLK_UP:            key = K_UPARROW; break;
     
   case SDLK_ESCAPE:        key = K_ESCAPE; break;
@@ -246,34 +250,31 @@ int XLateKey(unsigned int keysym)
   case SDLK_LCTRL:
   case SDLK_RCTRL:        key = K_CTRL; break;
     
-  case SDLK_LMETA:
-  case SDLK_RMETA:
+  case SDLK_LGUI:
+  case SDLK_RGUI:
   case SDLK_LALT:
   case SDLK_RALT:            key = K_ALT; break;
     
-  case SDLK_KP5:            key = K_KP_5; break;
+  case SDLK_KP_5:            key = K_KP_5; break;
     
   case SDLK_INSERT:        key = K_INS; break;
-  case SDLK_KP0:            key = K_KP_INS; break;
+  case SDLK_KP_0:            key = K_KP_INS; break;
     
   case SDLK_KP_MULTIPLY:        key = '*'; break;
   case SDLK_KP_PLUS:        key = K_KP_PLUS; break;
   case SDLK_KP_MINUS:        key = K_KP_MINUS; break;
   case SDLK_KP_DIVIDE:        key = K_KP_SLASH; break;
-    
-    /* suggestions on how to handle this better would be appreciated */
-  case SDLK_WORLD_7:        key = '`'; break;
-    
+
   default: /* assuming that the other sdl keys are mapped to ascii */
     if (keysym < 128)
       key = keysym;
     break;
   }
-  
+
   return key;        
 }
 
-static unsigned char KeyStates[SDLK_LAST];
+static unsigned char KeyStates[K_LAST];
 
 void getMouse(int *x, int *y, int *state) {
   *x = mx;
@@ -326,62 +327,57 @@ void GetEvent(SDL_Event *event)
       break;
 #endif
     case SDL_KEYDOWN:
-      if ( (KeyStates[SDLK_LALT] || KeyStates[SDLK_RALT]) &&
-           (event->key.keysym.sym == SDLK_RETURN) ) {
+      if ( KeyStates[K_ALT] && (event->key.keysym.sym == SDLK_RETURN) ) {
         cvar_t *fullscreen;
-        
-        SDL_WM_ToggleFullScreen(surface);
-        
-        if (surface->flags & SDL_FULLSCREEN) {
-          ri.Cvar_SetValue( "vid_fullscreen", 1 );
+
+        Uint32 win_flags = SDL_GetWindowFlags (window);
+        if (win_flags & SDL_WINDOW_FULLSCREEN) {
+            SDL_SetWindowFullscreen (window, 0);
+            ri.Cvar_SetValue( "vid_fullscreen", 0 );
         } else {
-          ri.Cvar_SetValue( "vid_fullscreen", 0 );
+            SDL_SetWindowFullscreen (window, SDL_WINDOW_FULLSCREEN);
+            ri.Cvar_SetValue( "vid_fullscreen", 1 );
         }
-        
+
         fullscreen = ri.Cvar_Get( "vid_fullscreen", "0", 0 );
         fullscreen->modified = false; /* we just changed it with SDL. */
         
         break; /* ignore this key */
       }
       
-      if ( (KeyStates[SDLK_LCTRL] || KeyStates[SDLK_RCTRL]) &&
-           (event->key.keysym.sym == SDLK_g) ) {
-        SDL_GrabMode gm = SDL_WM_GrabInput(SDL_GRAB_QUERY);
-        /*    
-          SDL_WM_GrabInput((gm == SDL_GRAB_ON) ? SDL_GRAB_OFF : SDL_GRAB_ON);
-          gm = SDL_WM_GrabInput(SDL_GRAB_QUERY);
-        */    
-        ri.Cvar_SetValue( "_windowed_mouse", (gm == SDL_GRAB_ON) ? /*1*/ 0 : /*0*/ 1 );
-        
+      if ( KeyStates[K_CTRL] && (event->key.keysym.sym == SDLK_g) ) {
+          SDL_bool grabbed = SDL_GetRelativeMouseMode ();
+          if (grabbed == SDL_TRUE) {
+              SDL_SetRelativeMouseMode (SDL_FALSE);
+              ri.Cvar_SetValue( "_windowed_mouse", 0);
+          } else {
+              SDL_SetRelativeMouseMode (SDL_TRUE);
+              ri.Cvar_SetValue( "_windowed_mouse", 1);
+          }
         break; /* ignore this key */
       }
-      
-      KeyStates[event->key.keysym.sym] = 1;
-      
+
       key = XLateKey(event->key.keysym.sym);
       if (key) {
-        keyq[keyq_head].key = key;
-        keyq[keyq_head].down = true;
-        keyq_head = (keyq_head + 1) & 63;
+          KeyStates[key] = 1;
+          keyq[keyq_head].key = key;
+          keyq[keyq_head].down = true;
+          keyq_head = (keyq_head + 1) & 63;
       }
       break;
     case SDL_KEYUP:
-      if (KeyStates[event->key.keysym.sym]) {
-        KeyStates[event->key.keysym.sym] = 0;
-        
         key = XLateKey(event->key.keysym.sym);
         if (key) {
-          keyq[keyq_head].key = key;
-          keyq[keyq_head].down = false;
-          keyq_head = (keyq_head + 1) & 63;
+            KeyStates[key] = 0;
+            keyq[keyq_head].key = key;
+            keyq[keyq_head].down = false;
+            keyq_head = (keyq_head + 1) & 63;
         }
-      }
-      break;
+        break;
     case SDL_QUIT:
-      ri.Cmd_ExecuteText(EXEC_NOW, "quit");
-      break;
+        ri.Cmd_ExecuteText(EXEC_NOW, "quit");
+        break;
     }
-
 }
 
 #ifdef Joystick
@@ -431,7 +427,7 @@ qboolean OpenJoystick(cvar_t *joy_dev) {
 */
 int SWimp_Init( void *hInstance, void *wndProc )
 {
-  if (SDL_WasInit(SDL_INIT_AUDIO|SDL_INIT_CDROM|SDL_INIT_VIDEO) == 0) {
+  if (SDL_WasInit(SDL_INIT_AUDIO | SDL_INIT_VIDEO) == 0) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
       Sys_Error("SDL Init failed: %s\n", SDL_GetError());
       return false;
@@ -470,20 +466,27 @@ int GLimp_Init( void *hInstance, void *wndProc )
 {
   return SWimp_Init(hInstance, wndProc);
 }
+
+int GLimp_QueryExtension (const char *extension)
+{
+    return (SDL_GL_ExtensionSupported (extension) == SDL_TRUE);
+}
 #endif
 
 static void SetSDLIcon()
 {
+    // FIXME: Later
+#if 0
 #include "q2icon.xbm"
     SDL_Surface *icon;
     SDL_Color color;
     Uint8 *ptr;
     int i, mask;
 
-    icon = SDL_CreateRGBSurface(SDL_SWSURFACE, q2icon_width, q2icon_height, 8, 0, 0, 0, 0);
+    icon = SDL_CreateRGBSurface(0, q2icon_width, q2icon_height, 8, 0, 0, 0, 0);
     if (icon == NULL)
         return; /* oh well... */
-    SDL_SetColorKey(icon, SDL_SRCCOLORKEY, 0);
+    SDL_SetColorKey(icon, SDL_TRUE, 0);
 
     color.r = 255;
     color.g = 255;
@@ -504,6 +507,7 @@ static void SetSDLIcon()
 
     SDL_WM_SetIcon(icon, NULL);
     SDL_FreeSurface(icon);
+#endif
 }
 
 /*
@@ -519,25 +523,28 @@ static void SetSDLIcon()
 #ifndef OPENGL
 static qboolean SWimp_InitGraphics( qboolean fullscreen )
 {
-    const SDL_VideoInfo *vinfo;
-    int flags;
+    Uint32 flags;
+    int w, h;
 
-    /* Just toggle fullscreen if that's all that has been changed */    
-    if (surface && (surface->w == vid.width) && (surface->h == vid.height)) {
-        int isfullscreen = (surface->flags & SDL_FULLSCREEN) ? 1 : 0;
-        if (fullscreen != isfullscreen)
-            SDL_WM_ToggleFullScreen(surface);
-    
-        isfullscreen = (surface->flags & SDL_FULLSCREEN) ? 1 : 0;
-        if (fullscreen == isfullscreen)
-            return true;
+    /* Just toggle fullscreen if that's all that has been changed */
+    if (window != NULL) {
+        SDL_GetWindowSize (window, &w, &h);
+        if (w == vid.width && h == vid.height) {
+            flags = SDL_GetWindowFlags (window);
+            if (fullscreen && !(flags & SDL_WINDOW_FULLSCREEN))
+                SDL_SetWindowFullscreen (window, SDL_WINDOW_FULLSCREEN);
+            if (!fullscreen && (flags & SDL_WINDOW_FULLSCREEN))
+                SDL_SetWindowFullscreen (window, 0);
+        }
+        return true;
     }
     
     srandom(getpid());
 
     // free resources in use
-    if (surface)
-        SDL_FreeSurface(surface);
+    if (surface != NULL) SDL_FreeSurface (surface);
+    if (renderer != NULL) SDL_DestroyRenderer (renderer);
+    if (window != NULL) SDL_DestroyWindow (window);
 
     // let the sound and input subsystems know about the new window
     ri.Vid_NewWindow (vid.width, vid.height);
@@ -549,22 +556,25 @@ static qboolean SWimp_InitGraphics( qboolean fullscreen )
     
     Hopefully this works all the time.
 */
-    vinfo = SDL_GetVideoInfo();
-    sdl_palettemode = (vinfo->vfmt->BitsPerPixel == 8) ? (SDL_PHYSPAL|SDL_LOGPAL) : SDL_LOGPAL;
-    flags = /*SDL_DOUBLEBUF|*/SDL_SWSURFACE|SDL_HWPALETTE;
-    if (fullscreen)
-        flags |= SDL_FULLSCREEN;
-    
-    SetSDLIcon(); /* currently uses q2icon.xbm data */
-    
-    if ((surface = SDL_SetVideoMode(vid.width, vid.height, 8, flags)) == NULL) {
-        Sys_Error("(SOFTSDL) SDL SetVideoMode failed: %s\n", SDL_GetError());
+    window = SDL_CreateWindow ("Quake II",
+                               SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                               vid.width, vid.height, (fullscreen) ? SDL_WINDOW_FULLSCREEN : 0);
+    if (window == NULL) {
+        Sys_Error("(SOFTSDL) SDL CreateWindow failed: %s\n", SDL_GetError());
         return false;
     }
-    
-    SDL_WM_SetCaption("Quake II", "Quake II");
 
-    SDL_ShowCursor(0);
+    renderer = SDL_CreateRenderer (window, -1, SDL_RENDERER_SOFTWARE);
+    if (renderer == NULL) {
+        Sys_Error("(SOFTSDL) SDL CreateRenderer failed: %s\n", SDL_GetError());
+        return false;
+    }
+
+    surface = SDL_CreateRGBSurface (0, vid.width, vid.height, 8, 0, 0, 0, 0);
+    if (surface == NULL) {
+        Sys_Error("(SOFTSDL) SDL CreateRGBSurface failed: %s\n", SDL_GetError());
+        return false;
+    }
 
     vid.rowbytes = surface->pitch;
     vid.buffer = surface->pixels;
@@ -578,28 +588,33 @@ static qboolean SWimp_InitGraphics( qboolean fullscreen )
 #else
 static qboolean GLimp_InitGraphics( qboolean fullscreen )
 {
-    int flags;
+    Uint32 flags;
+    int w, h;
     
     /* Just toggle fullscreen if that's all that has been changed */
-    if (surface && (surface->w == vid.width) && (surface->h == vid.height)) {
-        int isfullscreen = (surface->flags & SDL_FULLSCREEN) ? 1 : 0;
-        if (fullscreen != isfullscreen)
-            SDL_WM_ToggleFullScreen(surface);
-
-        isfullscreen = (surface->flags & SDL_FULLSCREEN) ? 1 : 0;
-        if (fullscreen == isfullscreen)
-            return true;
+    if (window != NULL) {
+        SDL_GetWindowSize (window, &w, &h);
+        if (w == vid.width && h == vid.height) {
+            flags = SDL_GetWindowFlags (window);
+            if (fullscreen && !(flags & SDL_WINDOW_FULLSCREEN))
+                SDL_SetWindowFullscreen (window, SDL_WINDOW_FULLSCREEN);
+            if (!fullscreen && (flags & SDL_WINDOW_FULLSCREEN))
+                SDL_SetWindowFullscreen (window, 0);
+        }
+        return true;
     }
-    
+
     srandom(getpid());
 
     // free resources in use
-    if (surface)
-        SDL_FreeSurface(surface);
+    if (glcontext != NULL) SDL_GL_DeleteContext (glcontext);
+    if (window != NULL) SDL_DestroyWindow (window);
 
     // let the sound and input subsystems know about the new window
     ri.Vid_NewWindow (vid.width, vid.height);
 
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
     SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
     SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
     SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
@@ -608,36 +623,38 @@ static qboolean GLimp_InitGraphics( qboolean fullscreen )
     
     if (use_stencil) 
       SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 1);
-    
-    flags = SDL_OPENGL;
-    if (fullscreen)
-        flags |= SDL_FULLSCREEN;
-    
-    SetSDLIcon(); /* currently uses q2icon.xbm data */
-    
-    if ((surface = SDL_SetVideoMode(vid.width, vid.height, 0, flags)) == NULL) {
-        Sys_Error("(SDLGL) SDL SetVideoMode failed: %s\n", SDL_GetError());
+
+    flags = SDL_WINDOW_OPENGL;
+    flags |= (fullscreen) ? SDL_WINDOW_FULLSCREEN : 0;
+    window = SDL_CreateWindow ("Quake II",
+                               SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                               vid.width, vid.height, flags);
+    if (window == NULL) {
+        Sys_Error("(SOFTSDL) SDL CreateWindow failed: %s\n", SDL_GetError());
         return false;
     }
 
-    // stencilbuffer shadows
-     if (use_stencil) {
-      int stencil_bits;
-      
-      have_stencil = false;
-      
-      if (!SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &stencil_bits)) {
-        ri.Con_Printf(PRINT_ALL, "I: got %d bits of stencil\n", 
-              stencil_bits);
-        if (stencil_bits >= 1) {
-          have_stencil = true;
-        }
-      }
+    glcontext = SDL_GL_CreateContext (window);
+    if (glcontext == NULL) {
+        Sys_Error("(SOFTSDL) SDL GL CreateContext failed: %s\n", SDL_GetError());
+        return false;
     }
 
-    SDL_WM_SetCaption("Quake II", "Quake II");
+    SetSDLIcon(); /* currently uses q2icon.xbm data */
 
-    SDL_ShowCursor(0);
+    // stencilbuffer shadows
+    if (use_stencil) {
+        int stencil_bits;
+        have_stencil = false;
+
+        if (!SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &stencil_bits)) {
+            ri.Con_Printf(PRINT_ALL, "I: got %d bits of stencil\n", 
+                          stencil_bits);
+            if (stencil_bits >= 1) {
+                have_stencil = true;
+            }
+        }
+    }
 
     X11_active = true;
 
@@ -662,13 +679,15 @@ void GLimp_BeginFrame( float camera_seperation )
 #ifndef OPENGL
 void SWimp_EndFrame (void)
 {
-    /* SDL_Flip(surface); */
-    SDL_UpdateRect(surface, 0, 0, 0, 0);
+    SDL_Texture *texture = SDL_CreateTextureFromSurface (renderer, surface);
+    SDL_RenderCopy (renderer, texture, NULL, NULL);
+    SDL_RenderPresent (renderer);
+    SDL_DestroyTexture (texture);
 }
 #else
 void GLimp_EndFrame (void)
 {
-    SDL_GL_SwapBuffers();
+    SDL_GL_SwapWindow (window);
 }
 #endif
 
@@ -745,9 +764,11 @@ void SWimp_SetPalette( const unsigned char *palette )
         colors[i].r = palette[i*4+0];
         colors[i].g = palette[i*4+1];
         colors[i].b = palette[i*4+2];
+        colors[i].a = 0;
     }
 
-    SDL_SetPalette(surface, sdl_palettemode, colors, 0, 256);
+    assert (surface->format->palette != NULL && surface->format->palette->ncolors >= 256);
+    SDL_SetPaletteColors (surface->format->palette, colors, 0, 256);
 }
 #endif
 
@@ -760,10 +781,16 @@ void SWimp_SetPalette( const unsigned char *palette )
 
 void SWimp_Shutdown( void )
 {
-    if (surface)
-        SDL_FreeSurface(surface);
+    if (surface != NULL) SDL_FreeSurface(surface);
+    if (renderer != NULL) SDL_DestroyRenderer (renderer);
+    if (glcontext != NULL) SDL_GL_DeleteContext (glcontext);
+    if (window != NULL) SDL_DestroyWindow (window);
+
+    renderer = NULL;
+    window = NULL;
     surface = NULL;
-    
+    glcontext = NULL;
+
     if (SDL_WasInit(SDL_INIT_EVERYTHING) == SDL_INIT_VIDEO)
         SDL_Quit();
     else
@@ -843,46 +870,39 @@ void KBD_Update(void)
   
   // get events from x server
   if (X11_active)
-    {
+  {
       int bstate;
       
       while (SDL_PollEvent(&event))
-    GetEvent(&event);
-      
+          GetEvent(&event);
+
       if (!mx && !my)
-    SDL_GetRelativeMouseState(&mx, &my);
+          SDL_GetRelativeMouseState(&mx, &my);
       mouse_buttonstate = 0;
       bstate = SDL_GetMouseState(NULL, NULL);
       if (SDL_BUTTON(1) & bstate)
-    mouse_buttonstate |= (1 << 0);
+          mouse_buttonstate |= (1 << 0);
       if (SDL_BUTTON(3) & bstate) /* quake2 has the right button be mouse2 */
-    mouse_buttonstate |= (1 << 1);
+          mouse_buttonstate |= (1 << 1);
       if (SDL_BUTTON(2) & bstate) /* quake2 has the middle button be mouse3 */
-    mouse_buttonstate |= (1 << 2);
+          mouse_buttonstate |= (1 << 2);
       if (SDL_BUTTON(6) & bstate)
-    mouse_buttonstate |= (1 << 3);
+          mouse_buttonstate |= (1 << 3);
       if (SDL_BUTTON(7) & bstate)
-    mouse_buttonstate |= (1 << 4);
-      
-      
+          mouse_buttonstate |= (1 << 4);
+
       if (old_windowed_mouse != _windowed_mouse->value) {
-    old_windowed_mouse = _windowed_mouse->value;
-    
-    if (!_windowed_mouse->value) {
-      /* ungrab the pointer */
-      SDL_WM_GrabInput(SDL_GRAB_OFF);
-    } else {
-      /* grab the pointer */
-      SDL_WM_GrabInput(SDL_GRAB_ON);
-    }
-      }            
-      while (keyq_head != keyq_tail)
-    {
-      in_state->Key_Event_fp(keyq[keyq_tail].key, keyq[keyq_tail].down);
-      keyq_tail = (keyq_tail + 1) & 63;
-    }
-    }
-  
+          old_windowed_mouse = _windowed_mouse->value;
+
+          if (_windowed_mouse->value) SDL_SetRelativeMouseMode (SDL_TRUE);
+          else SDL_SetRelativeMouseMode (SDL_FALSE);
+      }
+      while (keyq_head != keyq_tail) {
+          in_state->Key_Event_fp(keyq[keyq_tail].key, keyq[keyq_tail].down);
+          keyq_tail = (keyq_tail + 1) & 63;
+      }
+  }
+
   KBD_Update_Flag = 0;
 }
 
