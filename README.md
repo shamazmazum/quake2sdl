@@ -42,4 +42,4 @@ will need to download these packs from
 [icculus](http://offload1.icculus.org/quake2/files/) site (download
 `.pak` files). You will also need `pak0.pak` from the original
 game. Place these files where `game.so` is installed or to
-`/install/prefix/share/qauke2`.
+`/install/prefix/share/quake2`.
