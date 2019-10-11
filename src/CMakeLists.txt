@@ -1,4 +1,4 @@
-set (quake_resource_libdir ${CMAKE_INSTALL_PREFIX}/lib/quake2lnx)
+set (quake_resource_libdir ${CMAKE_INSTALL_PREFIX}/lib/quake2sdl)
 set (quake_resource_datadir ${CMAKE_INSTALL_PREFIX}/share/quake2)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/q_resources.h.in ${CMAKE_CURRENT_BINARY_DIR}/q_resources.h)
 
@@ -184,5 +184,5 @@ add_library (game-base SHARED
 set_target_properties (game-base PROPERTIES OUTPUT_NAME game PREFIX "")
 
 install (TARGETS quake2 RUNTIME DESTINATION bin)
-install (TARGETS ref-softsdl ref-sdlgl LIBRARY DESTINATION lib/quake2lnx)
-install (TARGETS game-base LIBRARY DESTINATION lib/quake2lnx/baseq2)
+install (TARGETS ref-softsdl ref-sdlgl LIBRARY DESTINATION lib/quake2sdl)
+install (TARGETS game-base LIBRARY DESTINATION lib/quake2sdl/baseq2)
