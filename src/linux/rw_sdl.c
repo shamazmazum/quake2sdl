@@ -332,11 +332,11 @@ void GetEvent(SDL_Event *event)
         cvar_t *fullscreen;
 
         Uint32 win_flags = SDL_GetWindowFlags (window);
-        if (win_flags & SDL_WINDOW_FULLSCREEN) {
+        if (win_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) {
             SDL_SetWindowFullscreen (window, 0);
             ri.Cvar_SetValue( "vid_fullscreen", 0 );
         } else {
-            SDL_SetWindowFullscreen (window, SDL_WINDOW_FULLSCREEN);
+            SDL_SetWindowFullscreen (window, SDL_WINDOW_FULLSCREEN_DESKTOP);
             ri.Cvar_SetValue( "vid_fullscreen", 1 );
         }
 
@@ -532,9 +532,9 @@ static qboolean SWimp_InitGraphics( qboolean fullscreen )
         SDL_GetWindowSize (window, &w, &h);
         if (w == vid.width && h == vid.height) {
             flags = SDL_GetWindowFlags (window);
-            if (fullscreen && !(flags & SDL_WINDOW_FULLSCREEN))
-                SDL_SetWindowFullscreen (window, SDL_WINDOW_FULLSCREEN);
-            if (!fullscreen && (flags & SDL_WINDOW_FULLSCREEN))
+            if (fullscreen && !(flags & SDL_WINDOW_FULLSCREEN_DESKTOP))
+                SDL_SetWindowFullscreen (window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+            if (!fullscreen && (flags & SDL_WINDOW_FULLSCREEN_DESKTOP))
                 SDL_SetWindowFullscreen (window, 0);
         }
         return true;
@@ -560,17 +560,19 @@ static qboolean SWimp_InitGraphics( qboolean fullscreen )
 */
     window = SDL_CreateWindow ("Quake II",
                                SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                               vid.width, vid.height, (fullscreen) ? SDL_WINDOW_FULLSCREEN : 0);
+                               vid.width, vid.height, (fullscreen) ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
     if (window == NULL) {
         Sys_Error("(SOFTSDL) SDL CreateWindow failed: %s\n", SDL_GetError());
         return false;
     }
 
-    renderer = SDL_CreateRenderer (window, -1, SDL_RENDERER_SOFTWARE);
+    renderer = SDL_CreateRenderer (window, -1, SDL_RENDERER_ACCELERATED);
     if (renderer == NULL) {
         Sys_Error("(SOFTSDL) SDL CreateRenderer failed: %s\n", SDL_GetError());
         return false;
     }
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+    SDL_RenderSetLogicalSize(renderer, vid.width, vid.height);
 
     texture = SDL_CreateTexture (renderer, SDL_GetWindowPixelFormat (window),
                                  SDL_TEXTUREACCESS_STREAMING, vid.width, vid.height);
@@ -605,9 +607,9 @@ static qboolean GLimp_InitGraphics( qboolean fullscreen )
         SDL_GetWindowSize (window, &w, &h);
         if (w == vid.width && h == vid.height) {
             flags = SDL_GetWindowFlags (window);
-            if (fullscreen && !(flags & SDL_WINDOW_FULLSCREEN))
-                SDL_SetWindowFullscreen (window, SDL_WINDOW_FULLSCREEN);
-            if (!fullscreen && (flags & SDL_WINDOW_FULLSCREEN))
+            if (fullscreen && !(flags & SDL_WINDOW_FULLSCREEN_DESKTOP))
+                SDL_SetWindowFullscreen (window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+            if (!fullscreen && (flags & SDL_WINDOW_FULLSCREEN_DESKTOP))
                 SDL_SetWindowFullscreen (window, 0);
         }
         return true;
@@ -634,7 +636,7 @@ static qboolean GLimp_InitGraphics( qboolean fullscreen )
       SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 1);
 
     flags = SDL_WINDOW_OPENGL;
-    flags |= (fullscreen) ? SDL_WINDOW_FULLSCREEN : 0;
+    flags |= (fullscreen) ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0;
     window = SDL_CreateWindow ("Quake II",
                                SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                                vid.width, vid.height, flags);
@@ -693,6 +695,7 @@ void SWimp_EndFrame (void)
      * textures cannot be with palette.
      */
     SDL_Surface *tmp = SDL_ConvertSurfaceFormat (surface, SDL_GetWindowPixelFormat (window), 0);
+    SDL_RenderClear (renderer);
     SDL_UpdateTexture (texture, NULL, tmp->pixels, tmp->pitch);
     SDL_RenderCopy (renderer, texture, NULL, NULL);
     SDL_RenderPresent (renderer);
