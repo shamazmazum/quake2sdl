@@ -49,6 +49,7 @@ qboolean have_stencil = false;
 static SDL_Surface *surface;
 static SDL_Window *window;
 static SDL_Renderer *renderer;
+static SDL_Texture *texture;
 static SDL_GLContext glcontext;
 
 #ifndef OPENGL
@@ -543,6 +544,7 @@ static qboolean SWimp_InitGraphics( qboolean fullscreen )
 
     // free resources in use
     if (surface != NULL) SDL_FreeSurface (surface);
+    if (texture != NULL) SDL_DestroyTexture (texture);
     if (renderer != NULL) SDL_DestroyRenderer (renderer);
     if (window != NULL) SDL_DestroyWindow (window);
 
@@ -567,6 +569,13 @@ static qboolean SWimp_InitGraphics( qboolean fullscreen )
     renderer = SDL_CreateRenderer (window, -1, SDL_RENDERER_SOFTWARE);
     if (renderer == NULL) {
         Sys_Error("(SOFTSDL) SDL CreateRenderer failed: %s\n", SDL_GetError());
+        return false;
+    }
+
+    texture = SDL_CreateTexture (renderer, SDL_GetWindowPixelFormat (window),
+                                 SDL_TEXTUREACCESS_STREAMING, vid.width, vid.height);
+    if (texture == NULL) {
+        Sys_Error("(SOFTSDL) SDL CreateTexture failed: %s\n", SDL_GetError());
         return false;
     }
 
@@ -679,10 +688,15 @@ void GLimp_BeginFrame( float camera_seperation )
 #ifndef OPENGL
 void SWimp_EndFrame (void)
 {
-    SDL_Texture *texture = SDL_CreateTextureFromSurface (renderer, surface);
+    /*
+     * We need to convert surface to native pixel format, because
+     * textures cannot be with palette.
+     */
+    SDL_Surface *tmp = SDL_ConvertSurfaceFormat (surface, SDL_GetWindowPixelFormat (window), 0);
+    SDL_UpdateTexture (texture, NULL, tmp->pixels, tmp->pitch);
     SDL_RenderCopy (renderer, texture, NULL, NULL);
     SDL_RenderPresent (renderer);
-    SDL_DestroyTexture (texture);
+    SDL_FreeSurface (tmp);
 }
 #else
 void GLimp_EndFrame (void)
@@ -764,7 +778,7 @@ void SWimp_SetPalette( const unsigned char *palette )
         colors[i].r = palette[i*4+0];
         colors[i].g = palette[i*4+1];
         colors[i].b = palette[i*4+2];
-        colors[i].a = 0;
+        colors[i].a = 255; // Opaque
     }
 
     assert (surface->format->palette != NULL && surface->format->palette->ncolors >= 256);
@@ -783,9 +797,11 @@ void SWimp_Shutdown( void )
 {
     if (surface != NULL) SDL_FreeSurface(surface);
     if (renderer != NULL) SDL_DestroyRenderer (renderer);
+    if (texture != NULL) SDL_DestroyTexture (texture);
     if (glcontext != NULL) SDL_GL_DeleteContext (glcontext);
     if (window != NULL) SDL_DestroyWindow (window);
 
+    texture = NULL;
     renderer = NULL;
     window = NULL;
     surface = NULL;
