@@ -668,7 +668,6 @@ void R_SetupFrame (void)
         qglClearColor( 0.3, 0.3, 0.3, 1 );
         qglScissor( r_newrefdef.x, vid.height - r_newrefdef.height - r_newrefdef.y, r_newrefdef.width, r_newrefdef.height );
         qglClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-        qglClearColor( 1, 0, 0.5, 0.5 );
         qglDisable( GL_SCISSOR_TEST );
     }
 }
@@ -691,6 +690,22 @@ void MYgluPerspective( GLdouble fovy, GLdouble aspect,
    qglFrustum( xmin, xmax, ymin, ymax, zNear, zFar );
 }
 
+void R_SetViewport (int draw2d)
+{
+    int x, y, x2, y2, w, h;
+    x = (vid.screen_width - vid.width) / 2;
+    y = (vid.screen_height - vid.height) / 2;
+    if (draw2d) {
+        w = vid.width;
+        h = vid.height;
+    } else {
+        x += r_newrefdef.x;
+        y += vid.height - r_newrefdef.y - r_newrefdef.height;
+        w = r_newrefdef.width;
+        h = r_newrefdef.height;
+    }
+    qglViewport (x, y, w, h);
+}
 
 /*
 =============
@@ -701,20 +716,11 @@ void R_SetupGL (void)
 {
     float    screenaspect;
 //    float    yfov;
-    int        x, x2, y2, y, w, h;
 
     //
     // set up viewport
     //
-    x = floor(r_newrefdef.x * vid.width / vid.width);
-    x2 = ceil((r_newrefdef.x + r_newrefdef.width) * vid.width / vid.width);
-    y = floor(vid.height - r_newrefdef.y * vid.height / vid.height);
-    y2 = ceil(vid.height - (r_newrefdef.y + r_newrefdef.height) * vid.height / vid.height);
-
-    w = x2 - x;
-    h = y - y2;
-
-    qglViewport (x, y2, w, h);
+    R_SetViewport (0);
 
     //
     // set up projection matrix
@@ -764,6 +770,7 @@ extern qboolean have_stencil;
 
 void R_Clear (void)
 {
+    qglClearColor (0, 0, 0, 0);
     if (gl_ztrick->value)
     {
         static int trickframe;
@@ -869,10 +876,10 @@ void R_RenderView (refdef_t *fd)
 }
 
 
-void    R_SetGL2D (void)
+void R_SetGL2D (void)
 {
     // set 2D virtual screen size
-    qglViewport (0,0, vid.width, vid.height);
+    R_SetViewport (1);
     qglMatrixMode(GL_PROJECTION);
     qglLoadIdentity ();
     qglOrtho  (0, vid.width, vid.height, 0, -99999, 99999);
@@ -1109,6 +1116,12 @@ qboolean R_SetMode (void)
             return false;
         }
     }
+
+    // We need to clear empty space if any
+    ri.Cvar_Set ("gl_clear", (fullscreen &&
+                              (vid.width != vid.screen_width ||
+                               vid.height != vid.screen_height))? "1": "0");
+
     return true;
 }
 
@@ -1501,17 +1514,7 @@ void R_BeginFrame( float camera_separation )
     /*
     ** go into 2D mode
     */
-    qglViewport (0,0, vid.width, vid.height);
-    qglMatrixMode(GL_PROJECTION);
-    qglLoadIdentity ();
-    qglOrtho  (0, vid.width, vid.height, 0, -99999, 99999);
-    qglMatrixMode(GL_MODELVIEW);
-    qglLoadIdentity ();
-    qglDisable (GL_DEPTH_TEST);
-    qglDisable (GL_CULL_FACE);
-    qglDisable (GL_BLEND);
-    qglEnable (GL_ALPHA_TEST);
-    qglColor4f (1,1,1,1);
+    R_SetGL2D ();
 
     /*
     ** draw buffer stuff
@@ -1598,7 +1601,6 @@ void R_SetPalette ( const unsigned char *palette)
 
     qglClearColor (0,0,0,0);
     qglClear (GL_COLOR_BUFFER_BIT);
-    qglClearColor (1,0, 0.5 , 0.5);
 }
 
 /*

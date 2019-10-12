@@ -98,7 +98,6 @@ add_library (ref-softsdl SHARED
   linux/rw_linux.c
   linux/rw_sdl.c
   )
-target_link_libraries (ref-softsdl ${SDL2_LIBRARY} pthread)
 set_target_properties (ref-softsdl PROPERTIES OUTPUT_NAME ref_softsdl PREFIX "")
 
 if (WITH_QMAX)
@@ -125,7 +124,6 @@ add_library (ref-sdlgl SHARED
   linux/rw_linux.c
   linux/joystick.c
 )
-target_link_libraries (ref-sdlgl ${SDL2_LIBRARY} pthread)
 if (WITH_QMAX)
   target_link_libraries (ref-sdlgl ${JPEG_LIBRARY})
 endif (WITH_QMAX)

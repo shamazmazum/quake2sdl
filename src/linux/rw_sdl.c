@@ -329,20 +329,16 @@ void GetEvent(SDL_Event *event)
 #endif
     case SDL_KEYDOWN:
       if ( KeyStates[K_ALT] && (event->key.keysym.sym == SDLK_RETURN) ) {
-        cvar_t *fullscreen;
-
         Uint32 win_flags = SDL_GetWindowFlags (window);
-        if (win_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) {
-            SDL_SetWindowFullscreen (window, 0);
-            ri.Cvar_SetValue( "vid_fullscreen", 0 );
-        } else {
-            SDL_SetWindowFullscreen (window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-            ri.Cvar_SetValue( "vid_fullscreen", 1 );
-        }
 
-        fullscreen = ri.Cvar_Get( "vid_fullscreen", "0", 0 );
-        fullscreen->modified = false; /* we just changed it with SDL. */
-        
+        /*
+         * There was quick fullscreen change here before (without
+         * vid_ref restart). Do not use this practice now because
+         * restarting vid_ref may set other cvars depending on
+         * fullscreen mode. Alt+Return is just a shortcut for the
+         * corresponding menu item now.
+         */
+        ri.Cvar_SetValue ("vid_fullscreen", !(win_flags & SDL_WINDOW_FULLSCREEN_DESKTOP));
         break; /* ignore this key */
       }
       
@@ -644,6 +640,10 @@ static qboolean GLimp_InitGraphics( qboolean fullscreen )
         Sys_Error("(SOFTSDL) SDL CreateWindow failed: %s\n", SDL_GetError());
         return false;
     }
+
+    // They force me to change global state. Shit
+    SDL_GetWindowSize (window, &vid.screen_width, &vid.screen_height);
+    assert (vid.screen_width >= vid.width && vid.screen_height >= vid.height);
 
     glcontext = SDL_GL_CreateContext (window);
     if (glcontext == NULL) {

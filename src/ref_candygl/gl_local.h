@@ -61,7 +61,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __VIDDEF_T
 typedef struct
 {
-    int        width, height;            // coordinates from main game
+    int width, height;            // coordinates from main game
+    int screen_width, screen_height;
 } viddef_t;
 #endif
 
