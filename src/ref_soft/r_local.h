@@ -161,8 +161,12 @@ extern oldrefdef_t      r_refdef;
 #define MAXWORKINGVERTS (MAXVERTS+4)    // max points in an intermediate
                                         //  polygon (while processing)
 // !!! if this is changed, it must be changed in d_ifacea.h too !!!
-#define MAXHEIGHT       1200
-#define MAXWIDTH        1600
+/*
+ * shamaz: Previous values were 1200 and 1600. Seems like hardcoded
+ * maximal resolution. Change this to 5000 for now.
+ */
+#define MAXHEIGHT       5000 // 1200
+#define MAXWIDTH        5000 // 1600
 
 #define INFINITE_DISTANCE       0x10000         // distance that's always guaranteed to
                                         //  be farther away than anything in
