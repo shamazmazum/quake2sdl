@@ -532,8 +532,8 @@ static qboolean SWimp_InitGraphics( qboolean fullscreen )
                 SDL_SetWindowFullscreen (window, SDL_WINDOW_FULLSCREEN_DESKTOP);
             if (!fullscreen && (flags & SDL_WINDOW_FULLSCREEN_DESKTOP))
                 SDL_SetWindowFullscreen (window, 0);
+            return true;
         }
-        return true;
     }
     
     srandom(getpid());
