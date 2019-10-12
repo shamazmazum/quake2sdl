@@ -39,55 +39,43 @@ this performs a slight compression of the screen at the same time as
 the sine warp, to keep the edges from wrapping
 =============
 */
+static int clamp_val (int x, int min, int max)
+{
+    x = (x > min)? x: min;
+    x = (x < max)? x: max;
+    return x;
+}
+
 void D_WarpScreen (void)
 {
-    int        w, h;
-    int        u,v, u2, v2;
-    byte    *dest;
-    int        *turb;
-    int        *col;
-    byte    **row;
+    byte *dest;
+    byte *src;
 
-    static int    cached_width, cached_height;
-    static byte    *rowptr[1200+AMP2*2];
-    static int    column[1600+AMP2*2];
+    int dst_w = r_newrefdef.width;
+    int dst_h = r_newrefdef.height;
 
-    //
-    // these are constant over resolutions, and can be saved
-    //
-    w = r_newrefdef.width;
-    h = r_newrefdef.height;
-    if (w != cached_width || h != cached_height)
-    {
-        cached_width = w;
-        cached_height = h;
-        for (v=0 ; v<h+AMP2*2 ; v++)
-        {
-            v2 = (int)((float)v/(h + AMP2 * 2) * r_refdef.vrect.height);
-            rowptr[v] = r_warpbuffer + (WARP_WIDTH * v2);
-        }
+    int src_w = r_refdef.vrect.width;
+    int src_h = r_refdef.vrect.height;
+    assert (src_w <= dst_w && src_h <= dst_h);
 
-        for (u=0 ; u<w+AMP2*2 ; u++)
-        {
-            u2 = (int)((float)u/(w + AMP2 * 2) * r_refdef.vrect.width);
-            column[u] = u2;
-        }
-    }
-
-    turb = intsintable + ((int)(r_newrefdef.time*SPEED)&(CYCLE-1));
     dest = vid.buffer + r_newrefdef.y * vid.rowbytes + r_newrefdef.x;
+    src = r_warpbuffer;
 
-    for (v=0 ; v<h ; v++, dest += vid.rowbytes)
-    {
-        col = &column[turb[v]];
-        row = &rowptr[v];
-        for (u=0 ; u<w ; u+=4)
-        {
-            dest[u+0] = row[turb[u+0]][col[u+0]];
-            dest[u+1] = row[turb[u+1]][col[u+1]];
-            dest[u+2] = row[turb[u+2]][col[u+2]];
-            dest[u+3] = row[turb[u+3]][col[u+3]];
+    int x, y, src_x, src_y, src_p, dst_p = 0;
+    int turb_start =  (int)(r_newrefdef.time*SPEED)&(CYCLE-1);
+    for (y=0; y<dst_h; y++) {
+        src_y = y * src_h / dst_h;
+        src_y += intsintable[(y + turb_start) % 1280];
+        // intsintable values are always >=0, but I use clamp anyway
+        src_y = clamp_val (src_y, 0, src_h-1);
+        src_p = src_y * src_w;
+        for (x=0; x<dst_w; x++) {
+            src_x = x * src_w / dst_w;
+            src_x += intsintable[(x + turb_start) % 1280];
+            src_x = clamp_val (src_x, 0, src_w-1);
+            dest[dst_p + x] = src[src_p + src_x];
         }
+        dst_p += vid.rowbytes;
     }
 }
 

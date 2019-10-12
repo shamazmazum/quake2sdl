@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // r_main.c
 
+#include <stdlib.h>
 #include "r_local.h"
 
 viddef_t    vid;
@@ -38,7 +39,7 @@ model_t        *currentmodel;
 
 model_t        *r_worldmodel;
 
-byte        r_warpbuffer[WARP_WIDTH * WARP_HEIGHT];
+byte        *r_warpbuffer;
 
 swstate_t sw_state;
 
@@ -364,6 +365,12 @@ void R_Shutdown (void)
     {
         free (vid.colormap);
         vid.colormap = NULL;
+    }
+
+    // shamaz: You can call free(NULL), just follow style
+    if (r_warpbuffer) {
+        free (r_warpbuffer);
+        r_warpbuffer = NULL;
     }
     R_UnRegister ();
     Mod_FreeAll ();
@@ -982,6 +989,16 @@ void R_SetLightLevel (void)
     r_lightlevel->value = 150.0 * light[0];
 }
 
+static void R_MaybeAllocWarpBuffer (int w, int h)
+{
+    if (w != r_newrefdef.width || h != r_newrefdef.height) {
+        free (r_warpbuffer);
+        int warp_w = r_newrefdef.width / WARP_SCALE;
+        int warp_h = r_newrefdef.height / WARP_SCALE;
+        // sizeof(byte) == 1 lol
+        r_warpbuffer = malloc (warp_w * warp_h * sizeof (byte)); 
+    }
+}
 
 /*
 @@@@@@@@@@@@@@@@
@@ -991,7 +1008,16 @@ R_RenderFrame
 */
 void R_RenderFrame (refdef_t *fd)
 {
+    int old_width, old_height;
+    old_width = r_newrefdef.width;
+    old_height = r_newrefdef.height;
+
     r_newrefdef = *fd;
+    /*
+     * shamaz: Shame I cannot do this earlier. For the next call I
+     * need a fresh refdef_t.
+     */
+    R_MaybeAllocWarpBuffer (old_width, old_height);
 
     if (!r_worldmodel && !( r_newrefdef.rdflags & RDF_NOWORLDMODEL ) )
         ri.Sys_Error (ERR_FATAL,"R_RenderView: NULL worldmodel");

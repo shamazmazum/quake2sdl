@@ -175,8 +175,11 @@ extern oldrefdef_t      r_refdef;
 
 // d_iface.h: interface header file for rasterization driver modules
 
-#define WARP_WIDTH              320
-#define WARP_HEIGHT             240
+/*
+ * shamaz: Greater values are more cache friendly but result in lower
+ * details when underwater. I think 5 is optimal for 1920x1080
+ */
+#define WARP_SCALE 5
 
 #define MAX_LBM_HEIGHT  480
 
@@ -471,7 +474,7 @@ void R_DrawSurface (void);
 
 extern int              c_surf;
 
-extern byte             r_warpbuffer[WARP_WIDTH * WARP_HEIGHT];
+extern byte             *r_warpbuffer;
 
 
 
