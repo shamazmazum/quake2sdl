@@ -525,7 +525,7 @@ static qboolean SWimp_InitGraphics( qboolean fullscreen )
 
     /* Just toggle fullscreen if that's all that has been changed */
     if (window != NULL) {
-        SDL_GetWindowSize (window, &w, &h);
+        SDL_RenderGetLogicalSize (renderer, &w, &h);
         if (w == vid.width && h == vid.height) {
             flags = SDL_GetWindowFlags (window);
             if (fullscreen && !(flags & SDL_WINDOW_FULLSCREEN_DESKTOP))
