@@ -2,8 +2,14 @@ set (quake_resource_libdir ${CMAKE_INSTALL_PREFIX}/lib/quake2sdl)
 set (quake_resource_datadir ${CMAKE_INSTALL_PREFIX}/share/quake2)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/q_resources.h.in ${CMAKE_CURRENT_BINARY_DIR}/q_resources.h)
 
-add_definitions (-DHAVE_IPV6 -DHAVE_SIN6_LEN -DLINUX_VERSION="1")
+add_definitions (-DHAVE_IPV6 -DLINUX_VERSION="1")
 include_directories (${SDL2_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${OPENGL_INCLUDE_DIR})
+if (${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
+  add_definitions (-DHAVE_SIN6_LEN)
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  # Linux-specific stuff like mremap
+  add_definitions (-D_GNU_SOURCE)
+endif ()
 
 if (WITH_RETEX)
   add_definitions (-DRETEX)
@@ -72,7 +78,10 @@ else (WITH_QMAX)
 endif (WITH_QMAX)
 
 add_executable (quake2 ${Q2_SOURCES})
-target_link_libraries (quake2 ${SDL2_LIBRARY} pthread m)
+target_link_libraries (quake2 ${SDL2_LIBRARY} m)
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  target_link_libraries (quake2 dl)
+endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 add_library (ref-softsdl SHARED
   ref_soft/r_aclip.c
