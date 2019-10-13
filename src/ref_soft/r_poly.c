@@ -38,8 +38,6 @@ spanletvars_t s_spanletvars;
 
 static int r_polyblendcolor;
 
-static espan_t    *s_polygon_spans;
-
 polydesc_t    r_polydesc;
 
 msurface_t *r_alpha_surfaces;
@@ -126,7 +124,7 @@ void R_DrawSpanletTurbulentStipple33( void )
             tturb = ((s_spanletvars.t + r_turb_turb[(s_spanletvars.s>>16)&(CYCLE-1)])>>16)&63;
             
             btemp = *( s_spanletvars.pbase + ( sturb ) + ( tturb << 6 ) );
-            
+
             if ( *pz <= ( izi >> 16 ) )
                 *pdest = btemp;
             
@@ -183,7 +181,7 @@ void R_DrawSpanletTurbulentStipple66( void )
             tturb = ((s_spanletvars.t + r_turb_turb[(s_spanletvars.s>>16)&(CYCLE-1)])>>16)&63;
             
             btemp = *( s_spanletvars.pbase + ( sturb ) + ( tturb << 6 ) );
-            
+
             if ( *pz <= ( izi >> 16 ) )
                 *pdest = btemp;
             
@@ -213,7 +211,7 @@ void R_DrawSpanletTurbulentStipple66( void )
             tturb = ((s_spanletvars.t + r_turb_turb[(s_spanletvars.s>>16)&(CYCLE-1)])>>16)&63;
             
             btemp = *( s_spanletvars.pbase + ( sturb ) + ( tturb << 6 ) );
-            
+
             if ( *pz <= ( izi >> 16 ) )
                 *pdest = btemp;
             
@@ -612,6 +610,7 @@ void R_PolygonDrawSpans(espan_t *pspan, int iswater )
 
     do
     {
+        assert (pspan->v >= 0 && pspan->u >= 0);
         s_spanletvars.pdest   = (byte *)d_viewbuffer + ( d_scantable[pspan->v] /*r_screenwidth * pspan->v*/) + pspan->u;
         s_spanletvars.pz      = d_pzbuffer + (d_zwidth * pspan->v) + pspan->u;
         s_spanletvars.u       = pspan->u;
@@ -752,15 +751,13 @@ NextSpan:
 ** Goes through the polygon and scans the left edge, filling in 
 ** screen coordinate data for the spans
 */
-void R_PolygonScanLeftEdge (void)
+void R_PolygonScanLeftEdge (espan_t *pspan)
 {
     int            i, v, itop, ibottom, lmaxindex;
     emitpoint_t    *pvert, *pnext;
-    espan_t        *pspan;
     float        du, dv, vtop, vbottom, slope;
     fixed16_t    u, u_step;
 
-    pspan = s_polygon_spans;
     i = s_minindex;
     if (i == 0)
         i = r_polydesc.nump;
@@ -795,6 +792,7 @@ void R_PolygonScanLeftEdge (void)
             {
                 pspan->u = u >> 16;
                 pspan->v = v;
+                assert (pspan->v >= 0 && pspan->u >= 0);
                 u += u_step;
                 pspan++;
             }
@@ -815,15 +813,13 @@ void R_PolygonScanLeftEdge (void)
 ** Goes through the polygon and scans the right edge, filling in
 ** count values.
 */
-void R_PolygonScanRightEdge (void)
+void R_PolygonScanRightEdge (espan_t *pspan)
 {
     int            i, v, itop, ibottom;
     emitpoint_t    *pvert, *pnext;
-    espan_t        *pspan;
     float        du, dv, vtop, vbottom, slope, uvert, unext, vvert, vnext;
     fixed16_t    u, u_step;
 
-    pspan = s_polygon_spans;
     i = s_minindex;
 
     vvert = r_polydesc.pverts[i].v;
@@ -994,6 +990,8 @@ void R_ClipAndDrawPoly ( float alpha, int isturbulent, qboolean textured )
         scale = yscale * pout->zi;
         pout->v = (ycenter - scale * transformed[1]);
 
+        assert (pout->u && pout->v);
+
         pv += sizeof (vec5_t) / sizeof (pv);
     }
 
@@ -1139,8 +1137,6 @@ static void R_DrawPoly( int iswater )
     emitpoint_t    *pverts;
     espan_t    spans[MAXHEIGHT+1];
 
-    s_polygon_spans = spans;
-
 // find the top and bottom vertices, and make sure there's at least one scan to
 // draw
     ymin = 999999.9;
@@ -1180,10 +1176,10 @@ static void R_DrawPoly( int iswater )
     pverts[nump] = pverts[0];
 
     R_PolygonCalculateGradients ();
-    R_PolygonScanLeftEdge ();
-    R_PolygonScanRightEdge ();
+    R_PolygonScanLeftEdge (spans);
+    R_PolygonScanRightEdge (spans);
 
-    R_PolygonDrawSpans( s_polygon_spans, iswater );
+    R_PolygonDrawSpans(spans, iswater);
 }
 
 /*
