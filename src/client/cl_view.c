@@ -398,14 +398,6 @@ void CL_PrepRefresh (void)
     SCR_UpdateScreen ();
     cl.refresh_prepped = true;
     cl.force_refdef = true;    // make sure we have a valid refdef
-
-    // start the cd track
-    if (Cvar_VariableValue("cd_shuffle")){
-      CDAudio_RandomPlay();
-    }
-    else{
-        CDAudio_Play (atoi(cl.configstrings[CS_CDTRACK]), true);
-      }
 }
 
 /*

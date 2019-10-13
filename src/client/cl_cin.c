@@ -580,9 +580,6 @@ void SCR_PlayCinematic (char *arg)
     char    name[MAX_OSPATH], *dot;
     int        old_khz;
 
-    // make sure CD isn't playing music
-    CDAudio_Stop();
-
     cl.cinematicframe = 0;
     dot = strstr (arg, ".");
     if (dot && !strcmp (dot, ".pcx"))

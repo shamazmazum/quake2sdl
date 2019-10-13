@@ -1042,8 +1042,6 @@ static menulist_s        s_options_lookstrafe_box;
 static menulist_s        s_options_crosshair_box;
 static menuslider_s        s_options_sfxvolume_slider;
 static menulist_s        s_options_joystick_box;
-static menulist_s        s_options_cdvolume_box;
-static menulist_s               s_options_cdshuffle_box;
 static menulist_s        s_options_quality_list;
 static menulist_s        s_options_compatibility_list;
 static menulist_s        s_options_console_action;
@@ -1095,9 +1093,6 @@ static float ClampCvar( float min, float max, float value )
 static void ControlsSetMenuItemValues( void )
 {
     s_options_sfxvolume_slider.curvalue        = Cvar_VariableValue( "s_volume" ) * 10;
-    s_options_cdvolume_box.curvalue         = !Cvar_VariableValue("cd_nocd");
-    
-    s_options_cdshuffle_box.curvalue        = Cvar_VariableValue("cd_shuffle");
 
     s_options_quality_list.curvalue            = !Cvar_VariableValue( "s_loadas8bit" );
     s_options_sensitivity_slider.curvalue    = ( sensitivity->value ) * 2;
@@ -1153,32 +1148,6 @@ static void UpdateVolumeFunc( void *unused )
     Cvar_SetValue( "s_volume", s_options_sfxvolume_slider.curvalue / 10 );
 }
 
-static void CDShuffleFunc(void *unused)
-{
-  Cvar_SetValue("cd_shuffle", s_options_cdshuffle_box.curvalue);
-}
-
-static void UpdateCDVolumeFunc( void *unused )
-{
-    Cvar_SetValue( "cd_nocd", !s_options_cdvolume_box.curvalue );
-    if (s_options_cdvolume_box.curvalue)
-    {
-      CDAudio_Init();
-      if (s_options_cdshuffle_box.curvalue)
-        {
-          CDAudio_RandomPlay();
-        }
-      else
-        {
-          CDAudio_Play(atoi(cl.configstrings[CS_CDTRACK]), true);
-        }
-    }
-    else
-    {
-      CDAudio_Stop();
-    }
-}
-
 static void ConsoleFunc( void *unused )
 {
     /*
@@ -1227,20 +1196,6 @@ static void UpdateSoundQualityFunc( void *unused )
 
 void Options_MenuInit( void )
 {
-    static const char *cd_music_items[] =
-    {
-        "disabled",
-        "enabled",
-        0
-    };
-
-    static const char *cd_shuffle[] =
-      {
-        "disabled",
-        "enabled",
-        0
-      };
-
     static const char *quality_items[] =
     {
         "low", "high", 0
@@ -1284,22 +1239,6 @@ void Options_MenuInit( void )
     s_options_sfxvolume_slider.minvalue        = 0;
     s_options_sfxvolume_slider.maxvalue        = 10;
     s_options_sfxvolume_slider.curvalue        = Cvar_VariableValue( "s_volume" ) * 10;
-
-    s_options_cdvolume_box.generic.type    = MTYPE_SPINCONTROL;
-    s_options_cdvolume_box.generic.x        = 0;
-    s_options_cdvolume_box.generic.y        = 10;
-    s_options_cdvolume_box.generic.name    = "CD music";
-    s_options_cdvolume_box.generic.callback    = UpdateCDVolumeFunc;
-    s_options_cdvolume_box.itemnames        = cd_music_items;
-    s_options_cdvolume_box.curvalue         = !Cvar_VariableValue("cd_nocd");
-
-    s_options_cdshuffle_box.generic.type = MTYPE_SPINCONTROL;
-    s_options_cdshuffle_box.generic.x = 0;
-    s_options_cdshuffle_box.generic.y = 20;
-    s_options_cdshuffle_box.generic.name = "CD shuffle";
-    s_options_cdshuffle_box.generic.callback = CDShuffleFunc;
-    s_options_cdshuffle_box.itemnames = cd_shuffle;
-    s_options_cdshuffle_box.curvalue = Cvar_VariableValue("cd_shuffle");;
 
     s_options_quality_list.generic.type    = MTYPE_SPINCONTROL;
     s_options_quality_list.generic.x        = 0;
@@ -1402,8 +1341,6 @@ void Options_MenuInit( void )
     ControlsSetMenuItemValues();
 
     Menu_AddItem( &s_options_menu, ( void * ) &s_options_sfxvolume_slider );
-    Menu_AddItem( &s_options_menu, ( void * ) &s_options_cdvolume_box );
-    Menu_AddItem( &s_options_menu, ( void * ) &s_options_cdshuffle_box );
     Menu_AddItem( &s_options_menu, ( void * ) &s_options_quality_list );
     Menu_AddItem( &s_options_menu, ( void * ) &s_options_compatibility_list );
     Menu_AddItem( &s_options_menu, ( void * ) &s_options_sensitivity_slider );

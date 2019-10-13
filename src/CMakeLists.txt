@@ -67,7 +67,6 @@ set (Q2_SOURCES
   linux/glob.c
   linux/net_udp6.c
   game/q_shared.c
-  linux/cd_sdl.c
   linux/snd_sdl.c
   )
 
