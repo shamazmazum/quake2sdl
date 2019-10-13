@@ -134,7 +134,7 @@ SNDDMA_Init (void)
 
     /* Fill the audio DMA information block */
     shm = &dma;
-    shm->samplebits = (obtained.format & 0xFF);
+    shm->samplebits = obtained.format & SDL_AUDIO_MASK_BITSIZE;
     shm->speed = obtained.freq;
     shm->channels = obtained.channels;
     shm->samples = obtained.samples * shm->channels;
