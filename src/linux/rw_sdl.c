@@ -643,7 +643,6 @@ static qboolean GLimp_InitGraphics( qboolean fullscreen )
 
     // They force me to change global state. Shit
     SDL_GetWindowSize (window, &vid.screen_width, &vid.screen_height);
-    assert (vid.screen_width >= vid.width && vid.screen_height >= vid.height);
 
     glcontext = SDL_GL_CreateContext (window);
     if (glcontext == NULL) {
